@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, status
 from hack.core.models.check import Check
 from hack.core.services.checks import CheckService
 from hack.core.services.uow_ctl import UoWCtl
-from hack.server.schemas.streams import (
+from hack.server.schemas.checks import (
     CreateStreamDTO,
     CreateStreamPropositionDTO,
     StreamDTO,
