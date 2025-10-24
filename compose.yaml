@@ -1,4 +1,4 @@
-name: "myhousehold"
+name: "hack"
 services:
   postgres:
     image: postgres:17
