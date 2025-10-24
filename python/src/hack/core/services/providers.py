@@ -3,7 +3,7 @@ from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hack.core.services.access import AccessService
-from hack.core.services.challenges import CheckService
+from hack.core.services.checks import CheckService
 from hack.core.services.uow_ctl import UoWCtl
 
 
