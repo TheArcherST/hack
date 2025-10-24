@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import JSON
 from sqlalchemy.orm import mapped_column, Mapped
 
-from .base import Base
+from hack.core.models.base import Base
 
 
 class Check(Base):
