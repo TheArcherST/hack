@@ -1,19 +1,16 @@
-from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
 from fastapi import APIRouter, status
 
 from hack.core.models import Agent
-from hack.core.models.check import Check
 from hack.core.services.agent import AgentService
-from hack.core.services.checks import CheckService
 from hack.core.services.uow_ctl import UoWCtl
 from hack.rest_server.schemas.checks import (
     CheckDTO,
 )
 from hack.rest_server.schemas.agents import (
-    MyAgentDTO,
+    MyAgentDTO, CreateAgentDTO,
 )
 
 router = APIRouter(
