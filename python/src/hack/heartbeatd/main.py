@@ -60,6 +60,7 @@ async def heartbit(
 async def heartbeat_schedule_loop(
         agent_service: FromDishka[AgentService],
 ):
+    print("Enter heartbeat schedule loop")
     async for i in await agent_service.stream_ids():
         for j in range(10):  # 60 seconds / 10 = 6 seconds
             await heartbit.schedule_by_time(

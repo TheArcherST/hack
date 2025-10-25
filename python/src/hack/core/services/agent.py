@@ -117,8 +117,8 @@ class AgentService:
         await self.orm_session.flush()
         return agent
 
-    async def stream_ids(self, options: tuple = ()) -> AsyncIterable[int]:
-        stmt = (select(Agent.id).options(*options))
+    async def stream_ids(self) -> AsyncIterable[int]:
+        stmt = (select(Agent.id))
         return await self.orm_session.stream_scalars(stmt)
 
     async def get_agents_with(
