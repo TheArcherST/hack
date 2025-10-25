@@ -27,10 +27,11 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
         mx_task = asyncio.create_task(query("MX"))
         ns_task = asyncio.create_task(query("NS"))
         txt_task = asyncio.create_task(query("TXT"))
+        cname_task = asyncio.create_task(query("CNAME"))
 
         # Wait for all tasks
-        a_records, aaaa_records, mx_records, ns_records, txt_records = await asyncio.gather(
-            a_task, aaaa_task, mx_task, ns_task, txt_task
+        a_records, aaaa_records, mx_records, ns_records, txt_records, cname_records = await asyncio.gather(
+            a_task, aaaa_task, mx_task, ns_task, txt_task, cname_task
         )
 
         return DNSCheckTaskResult(
@@ -39,6 +40,7 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
             mx_records=mx_records,
             ns_records=ns_records,
             txt_records=txt_records,
+            cname_records=cname_records,
         )
 
 
@@ -49,4 +51,5 @@ class DNSCheckTaskResult(BaseCheckTaskResult):
     aaaa_records: list[str] | None = None
     mx_records: list[str] | None = None
     ns_records: list[str] | None = None
+    cname_records: list[str] | None = None
     txt_records: list[str] | None = None

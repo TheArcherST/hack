@@ -4,21 +4,25 @@ import asyncio
 from typing import Any, Optional, Literal
 
 import geoip2.database
-from pydantic import IPvAnyAddress, Field
+from pydantic import IPvAnyAddress, Field, HttpUrl
 from scapy.all import sr1, IP, ICMP
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .commands import get_ip
 from .type_enum import CheckTaskTypeEnum
 
 
 class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.TRACEROUTE] = CheckTaskTypeEnum.TRACEROUTE
-    ip: IPvAnyAddress
+    ip: IPvAnyAddress | None = None
+    url: HttpUrl | None = None
     max_ttl: int = Field(30, ge=1, le=255)
     timeout: int = 2
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 
     async def perform_check(self) -> TracerouteCheckTaskResult:
+        if self.ip is None:
+            self.ip = await get_ip(self.url)
         reader = geoip2.database.Reader(self.db_path)
         def run_trace() -> dict[str, Any]:
             hops: list[dict[str, Any]] = []
