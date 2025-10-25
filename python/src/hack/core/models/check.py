@@ -1,8 +1,7 @@
 import uuid
-from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import JSON, ForeignKey
+from sqlalchemy import JSON
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from hack.core.models import CheckTask

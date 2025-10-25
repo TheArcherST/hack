@@ -2,6 +2,7 @@ import asyncio
 
 from dishka import make_async_container, Scope, provide, Provider
 
+from hack.core.models.check_implementations.unions import AnyCheckTaskPayload
 from hack.core.services.agent import AgentService
 
 from hack.core.providers import ProviderDatabase, ProviderConfig
@@ -40,7 +41,7 @@ async def async_main():
                 for i in await agent_service.get_agents_with():
                     await check_service.create_check_task(
                         check_uid=check.uid,
-                        payload=AnyCheckTaskPayloadType.model_validate(check.payload),
+                        payload=AnyCheckTaskPayload.validate_python(check.payload),
                         bound_to_agent_id=i.id,
                     )
 
