@@ -1,31 +1,28 @@
-from pydantic import JsonValue
+from uuid import UUID
 
 from .base import BaseDTO
 
+from hack.core.models.check_implementations.dns import DNSCheckTaskPayload, DNSCheckTaskResult
 
-class CreateStreamDTO(BaseDTO):
+
+AnyCheckTaskPayload = DNSCheckTaskPayload
+AnyCheckTaskResult = DNSCheckTaskResult
+
+
+class CreateCheckDTO(BaseDTO):
+    payload: AnyCheckTaskPayload
+
+
+class BoundToAgentDTO(BaseDTO):
     name: str
-    json_schema: dict[str, JsonValue]
-    is_private: bool
 
 
-class StreamDTO(BaseDTO):
-    id: int
-    name: str
-    json_schema: dict[str, JsonValue]
-    is_private: bool
+class CheckTask(BaseDTO):
+    bound_to_agent: BoundToAgentDTO
+    payload: AnyCheckTaskPayload
+    result: AnyCheckTaskPayload
 
 
-class CreateRecordIntent(BaseDTO):
-    pass
-
-
-class CreateStreamPropositionDTO(BaseDTO):
-    json_object: dict[str, JsonValue]
-    comment: str | None
-
-
-class StreamPropositionDTO(BaseDTO):
-    id: int
-    json_object: dict[str, JsonValue]
-    comment: str | None
+class CheckDTO(BaseDTO):
+    uid: UUID
+    tasks: list[CheckTask]

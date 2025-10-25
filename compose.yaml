@@ -20,6 +20,19 @@ services:
       timeout: 60s
       retries: 5
       start_period: 80s
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - ${COMPOSE__REDIS__HOST}:${COMPOSE__REDIS__PORT}:6379
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_data:/data
   rest-server:
     build: ./python
     command: run-rest-server
@@ -29,6 +42,7 @@ services:
     env_file: ./python/.env
     depends_on:
       - postgres
+      - redis
   tool-alembic:
     profiles:
       - tools
@@ -47,6 +61,12 @@ services:
       - tests
     build: ./python
     entrypoint: pytest
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  redis_data:
