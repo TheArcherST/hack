@@ -1,25 +1,22 @@
-# auth: keys only
+# Global safe defaults
+UsePAM no
 PasswordAuthentication no
 KbdInteractiveAuthentication no
 ChallengeResponseAuthentication no
 PubkeyAuthentication yes
-
 PermitRootLogin no
-UsePAM no
-
-# forwarding policy: only local forwards (client->server)
-AllowTcpForwarding local
 GatewayPorts no
-AllowAgentForwarding no
 X11Forwarding no
-PermitTTY no
+AllowAgentForwarding no
+AllowStreamLocalForwarding no
 
-# modern host key
-HostKey /etc/ssh/ssh_host_ed25519_key
-HostKeyAlgorithms ssh-ed25519
-PubkeyAcceptedKeyTypes ssh-ed25519,ssh-ed25519-cert-v01@openssh.com
+# Default: no forwarding unless matched
+AllowTcpForwarding no
 
-# restrict this user further
+# Narrow allowance for your user
 Match User appuser
     AllowTcpForwarding local
-    ForceCommand /bin/false
+    PermitOpen agent:8000
+    PermitTTY no
+    # If you use ForceCommand (e.g., internal-sftp), keep it AND re-allow:
+    # ForceCommand internal-sftp
