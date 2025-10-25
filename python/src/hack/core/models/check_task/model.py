@@ -22,4 +22,4 @@ class CheckTask(Base):
 
     bound_to_agent_id: Mapped[int] = mapped_column(ForeignKey("agent.id"))
 
-    bound_to_agent: Mapped[Agent] = relationship()
+    bound_to_agent: Mapped[Agent] = relationship(lazy="selectin")
