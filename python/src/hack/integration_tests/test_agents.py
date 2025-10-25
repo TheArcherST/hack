@@ -10,5 +10,4 @@ def test_streams(
 ):
     req = api_templates.make_issue_agent_create_credentials()
     r = client.prepsend(req)
-    breakpoint()
     assert r.status_code == 201
