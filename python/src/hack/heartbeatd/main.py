@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from dishka import make_async_container, FromDishka
-from dishka.integrations.taskiq import inject, setup_dishka
+from dishka.integrations.taskiq import inject, setup_dishka, TaskiqProvider
 from taskiq import TaskiqScheduler
 from taskiq.schedule_sources import LabelScheduleSource
 from taskiq.scheduler.scheduled_task import CronSpec
@@ -19,6 +19,7 @@ providers = (
     ProviderDatabase(),
     ProviderServices(),
     NoAuthorizedUser(),
+    TaskiqProvider(),
 )
 
 broker = RedisStreamBroker("redis://redis:6379")
