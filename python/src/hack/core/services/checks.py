@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from hack.core.models.check import Check
 from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
 from hack.core.models.check_task.model import CheckTask
-from hack.rest_server.providers import AuthorizedUser
 
 
 class StreamsServiceError(Exception):
