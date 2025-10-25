@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import or_, select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from hack.core.models.agent import AgentStatus
 from hack.core.models.check import Check
 from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
 from hack.core.models.check_task.model import CheckTask
@@ -23,6 +24,17 @@ class CheckService:
             orm_session: AsyncSession,
     ):
         self.orm_session = orm_session
+
+    async def notify_check_task_failed(
+            self,
+            check_task_uid: UUID,
+    ):
+        stmt = (
+            update(CheckTask)
+            .where(CheckTask.uid == check_task_uid)
+            .values({CheckTask.failed_count: CheckTask.failed_count + 1})
+        )
+        await self.orm_session.execute(stmt)
 
     async def create_check(
             self,
@@ -82,6 +94,7 @@ class CheckService:
         stmt = (
             select(CheckTask)
             .where(CheckTask.acked_at.is_(None))
+            .where(CheckTask.failed_count <= 5)  # todo: rebinding
             .order_by(CheckTask.created_at.asc())
             .limit(1)
             .with_for_update(skip_locked=True)

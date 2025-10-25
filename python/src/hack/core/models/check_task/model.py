@@ -17,6 +17,7 @@ class CheckTask(Base):
     payload: Mapped[dict] = mapped_column(JSON)
     result: Mapped[dict | None] = mapped_column(JSON)
     acked_at: Mapped[datetime | None] = mapped_column()
+    failed_count: Mapped[int] = mapped_column(default=0)
     created_at: Mapped[CreatedAt]
 
     bound_to_agent_id: Mapped[int] = mapped_column(ForeignKey("agent.id"))

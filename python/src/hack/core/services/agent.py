@@ -1,3 +1,4 @@
+from enum import StrEnum
 from ipaddress import IPv4Address
 from typing import Iterable, AsyncIterable
 

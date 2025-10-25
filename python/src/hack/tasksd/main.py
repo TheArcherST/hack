@@ -1,6 +1,5 @@
 import asyncio
 
-import asyncssh
 from dishka import make_async_container, Scope, Provider, provide
 
 from hack.core.models.check_implementations.unions import AnyCheckTaskPayload, AnyCheckTaskResult
@@ -41,18 +40,24 @@ async def async_main():
                 connector = await agent_service.get_connector(
                     agent_id=check_task.bound_to_agent_id,
                 )
+                uow_ctl = await request_c.get(UoWCtl)
                 try:
                     async with connector.connect() as conn:
                         response = await conn.post("/check", json=check_task.payload)
                 except TimeoutError:
                     print(f"Timeout error for agent {check_task.bound_to_agent_id}")
+                    await check_service.notify_check_task_failed()
+                    await uow_ctl.commit()
+                    continue
+                except Exception as e:
+                    print(f"Some unknown error for agent {check_task.bound_to_agent_id}: `{e}`")
+                    await uow_ctl.commit()
                     continue
 
                 result = AnyCheckTaskResult.validate_python(response.json())
 
                 await check_service.store_check_task_result(check_task.uid, result)
                 await check_service.ack_check_task(check_task.uid)
-                uow_ctl = await request_c.get(UoWCtl)
                 await uow_ctl.commit()
 
             await asyncio.sleep(0.01)
