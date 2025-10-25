@@ -13,7 +13,7 @@ class BoundToAgentDTO(BaseDTO):
     name: str
 
 
-class CheckTask(BaseDTO):
+class CheckTaskDTO(BaseDTO):
     bound_to_agent: BoundToAgentDTO
     payload: AnyCheckTaskPayload
     result: AnyCheckTaskResult
@@ -21,4 +21,4 @@ class CheckTask(BaseDTO):
 
 class CheckDTO(BaseDTO):
     uid: UUID
-    tasks: list[CheckTask]
+    tasks: list[CheckTaskDTO]
