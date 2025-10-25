@@ -20,8 +20,9 @@ class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
 
     async def perform_check(self) -> GeoIPCheckTaskResult:
         if self.ip is None:
-            ip, _ = get_ip(self.url)
-        async def lookup_ip() -> dict[str, Any]:
+            self.ip, _ = get_ip(self.url)
+
+        def lookup_ip() -> dict[str, Any]:
             try:
                 with geoip2.database.Reader(self.db_asn_path) as asn_reader:
                     with geoip2.database.Reader(self.db_path) as reader:
