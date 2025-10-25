@@ -26,6 +26,7 @@ class MyKeypairDTO(BaseDTO):
 
 class MyAgentDTO(BaseDTO):
     id: int
+    name: str
     ip: IPv4Address
     port: int
     status: AgentStatus
