@@ -13,3 +13,7 @@ test:
 	docker compose run --rm --build run-integration-tests $(args)
 update:
 	git pull && make up && make test
+logs:
+	docker compose logs -f
+down:
+	docker compose down

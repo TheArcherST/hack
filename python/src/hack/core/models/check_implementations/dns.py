@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Literal
 
-from pydantic import IPvAnyAddress
+import pydig
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
 from .type_enum import CheckTaskTypeEnum
@@ -11,14 +12,39 @@ from .type_enum import CheckTaskTypeEnum
 class DNSCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.DNS] = CheckTaskTypeEnum.DNS
 
-    ip: IPvAnyAddress
-    # and other fields...
+    domain: str
 
     async def perform_check(self) -> DNSCheckTaskResult:
-        # do stuff with self.ip and other
-        pass
+        domain = self.domain
+
+        async def query(record_type: str) -> list[str]:
+            # Run pydig.query in a thread to avoid blocking
+            return await asyncio.to_thread(pydig.query, domain, record_type)
+
+        # Run all lookups concurrently
+        a_task = asyncio.create_task(query("A"))
+        aaaa_task = asyncio.create_task(query("AAAA"))
+        mx_task = asyncio.create_task(query("MX"))
+        ns_task = asyncio.create_task(query("NS"))
+        txt_task = asyncio.create_task(query("TXT"))
+
+        # Wait for all tasks
+        a_records, aaaa_records, mx_records, ns_records, txt_records = await asyncio.gather(
+            a_task, aaaa_task, mx_task, ns_task, txt_task
+        )
+
+        return DNSCheckTaskResult(
+            a_records=a_records,
+            aaaa_records=aaaa_records,
+            mx_records=mx_records,
+            ns_records=ns_records,
+            txt_records=txt_records,
+        )
 
 
 class DNSCheckTaskResult(BaseCheckTaskResult):
-    # some results.  will be accessible to frontend
-    pass
+    a_records: list[str] | None = None
+    aaaa_records: list[str] | None = None
+    mx_records: list[str] | None = None
+    ns_records: list[str] | None = None
+    txt_records: list[str] | None = None
