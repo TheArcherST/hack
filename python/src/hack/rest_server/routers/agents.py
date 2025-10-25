@@ -40,7 +40,7 @@ async def create_agent(
 
 
 @router.put(
-    "/agents/{agent_id}",
+    "/{agent_id}",
     response_model=MyAgentDTO,
 )
 @inject
@@ -62,7 +62,7 @@ async def update_agent(
 
 
 @router.delete(
-    "/agents/{agent_id}",
+    "/{agent_id}",
 )
 @inject
 async def delete_agent(
