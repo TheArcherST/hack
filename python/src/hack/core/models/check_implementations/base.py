@@ -17,4 +17,4 @@ class BaseCheckTaskPayload(BaseModel, abc.ABC):
 
 
 class BaseCheckTaskResult(BaseModel):
-    pass
+    type: CheckTaskTypeEnum

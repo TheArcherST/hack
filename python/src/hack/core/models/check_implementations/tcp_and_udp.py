@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Optional
+from typing import Any, Optional, Literal
 
 from pydantic import IPvAnyAddress, Field
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .type_enum import CheckTaskTypeEnum
 
 
 class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
+    type: Literal[CheckTaskTypeEnum.TCP_AND_UDP] = CheckTaskTypeEnum.TCP_AND_UDP
     ip: IPvAnyAddress
     port: int = Field(..., ge=1, le=65535)
     protocol: str = Field("tcp", pattern="^(tcp|udp)$")
@@ -85,6 +87,7 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
 
 
 class TCPUDPCheckTaskResult(BaseCheckTaskResult):
+    type: Literal[CheckTaskTypeEnum.TCP_AND_UDP] = CheckTaskTypeEnum.TCP_AND_UDP
     reachable: bool | None = None
     latency_ms: float | None = None
     protocol: str | None = None

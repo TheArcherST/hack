@@ -40,6 +40,7 @@ class PingCheckTaskPayload(BaseCheckTaskPayload):
 
 
 class PingCheckTaskResult(BaseCheckTaskResult):
+    type: Literal[CheckTaskTypeEnum.PING] = CheckTaskTypeEnum.PING
     response_time: float | None = None  # seconds
     success: bool = False
     error: str | None = None

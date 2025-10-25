@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import aiohttp
-from typing import Any, Optional
+from typing import Any, Optional, Literal
 from pydantic import HttpUrl
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .type_enum import CheckTaskTypeEnum
 
 
 class HTTPCheckTaskPayload(BaseCheckTaskPayload):
+    type: Literal[CheckTaskTypeEnum.HTTP] = CheckTaskTypeEnum.HTTP
+
     url: HttpUrl
     timeout: int = 10
     verify_ssl: bool = True

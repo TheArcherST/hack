@@ -2,11 +2,7 @@ from uuid import UUID
 
 from .base import BaseDTO
 
-from hack.core.models.check_implementations.dns import DNSCheckTaskPayload, DNSCheckTaskResult
-
-
-AnyCheckTaskPayload = DNSCheckTaskPayload
-AnyCheckTaskResult = DNSCheckTaskResult
+from ...core.models.check_implementations.unions import AnyCheckTaskPayload
 
 
 class CreateCheckDTO(BaseDTO):

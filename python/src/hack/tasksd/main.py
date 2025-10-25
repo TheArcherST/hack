@@ -8,6 +8,7 @@ from hack.core.providers import ProviderDatabase, ProviderConfig
 from hack.core.services.checks import CheckService
 from hack.core.services.providers import ProviderServices
 from hack.rest_server.providers import AuthorizedUser
+from hack.rest_server.schemas.checks import AnyCheckTaskPayload
 
 
 class NoAuthorizedUser(Provider):
@@ -39,7 +40,7 @@ async def async_main():
                 for i in await agent_service.get_agents_with():
                     await check_service.create_check_task(
                         check_uid=check.uid,
-                        payload=check.payload,
+                        payload=AnyCheckTaskPayload.model_validate(check.payload),
                         bound_to_agent_id=i.id,
                     )
 

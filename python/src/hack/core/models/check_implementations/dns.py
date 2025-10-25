@@ -43,6 +43,8 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
 
 
 class DNSCheckTaskResult(BaseCheckTaskResult):
+    type: Literal[CheckTaskTypeEnum.DNS] = CheckTaskTypeEnum.DNS
+
     a_records: list[str] | None = None
     aaaa_records: list[str] | None = None
     mx_records: list[str] | None = None
