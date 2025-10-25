@@ -55,6 +55,11 @@ async def async_main():
                     await uow_ctl.commit()
                     continue
 
+                if not response.is_success:
+                    print(f"Some problem on agent's {check_task.bound_to_agent_id} side: code `{response.status_code}`")
+                    await uow_ctl.commit()
+                    continue
+
                 result = AnyCheckTaskResult.validate_python(response.json())
                 print(f"Store result: {result}")
 
