@@ -25,12 +25,12 @@ def generate_compose_file(
     return """
 services:
   agent:
-    build: https://sourcecraft.dev/lvalue/hack-backend#python
+    build: https://git@git.sourcecraft.dev/lvalue/hack-backend.git#main:python
     command: run-agent-rest-server
     container_name: lvalue-agent
     restart: unless-stopped
   sshd:
-    build: https://sourcecraft.dev/lvalue/hack-backend#sshd
+    build: https://git@git.sourcecraft.dev/lvalue/hack-backend.git#main:sshd
     container_name: lvalue-sshd
     environment:
       PUBLIC_KEY: "{public_key}"
@@ -44,6 +44,7 @@ services:
 
 @router.post(
     "/create-credentials",
+    status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def issue_create_credentials(
@@ -71,7 +72,8 @@ async def create_agent(
 ) -> Agent:
     agent = await agent_service.create_agent(
         keypair_id=payload.keypair_id,
-        ip=payload.ipv4,
+        ssh_ip=payload.ip,
+        ssh_port=payload.port,
         rhost="agent",
         rport=8080,
     )

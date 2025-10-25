@@ -1,3 +1,5 @@
+from ipaddress import IPv4Address
+
 import asyncssh
 from sqlalchemy import select
 
@@ -25,14 +27,14 @@ class AgentService:
         priv = asyncssh.generate_private_key(algorithm)
 
         # 2) Export keys as strings (no files)
-        pub_line = priv.export_public_key()
+        pub_line = priv.export_public_key(format_name="openssh")
         pem = priv.export_private_key(passphrase=passphrase)  # OpenSSH new-format PEM
 
         # 3) Persist to DB
         rec = AgentKeypair(
             name=None,
             algorithm=algorithm,
-            public_key_openssh=pub_line,
+            public_key_openssh=pub_line.decode("utf-8"),
             private_key_pem=pem,
         )
         self.orm_session.add(rec)
@@ -46,7 +48,7 @@ class AgentService:
             options=(joinedload(Agent.keypair),),
         )
         return AgentConnector(
-            ssh_host=agent.ip,
+            ssh_host=agent.ssh_ip,
             ssh_port=agent.ssh_port,
             rhost=agent.rhost,
             rport=agent.rport,
@@ -56,13 +58,15 @@ class AgentService:
     async def create_agent(
             self,
             keypair_id: int,
-            ip: str,
+            ssh_ip: IPv4Address,
+            ssh_port: int,
             rhost: str,
             rport: int,
     ):
         agent = Agent(
             keypair_id=keypair_id,
-            ip=ip,
+            ssh_ip=str(ssh_ip),
+            ssh_port=ssh_port,
             rhost=rhost,
             rport=rport,
         )

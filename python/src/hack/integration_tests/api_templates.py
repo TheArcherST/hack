@@ -4,16 +4,16 @@ from hack.integration_tests.base import PatchedRequest
 _base_url = "http://rest-server"  # docker compose address
 
 
-def make_create_stream():
+def make_issue_agent_create_credentials():
     return PatchedRequest(
         method="POST",
-        url=_base_url + "/streams",
+        url=_base_url + "/agents/create-credentials",
     )
 
-def make_get_streams():
+def make_create_agent():
     return PatchedRequest(
-        method="GET",
-        url=_base_url + "/streams",
+        method="POST",
+        url=_base_url + "/agents",
     )
 
 def make_create_stream_proposition():
