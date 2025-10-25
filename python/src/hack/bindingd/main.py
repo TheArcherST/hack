@@ -8,6 +8,7 @@ from hack.core.services.agent import AgentService
 from hack.core.providers import ProviderDatabase, ProviderConfig
 from hack.core.services.checks import CheckService
 from hack.core.services.providers import ProviderServices
+from hack.core.services.uow_ctl import UoWCtl
 from hack.rest_server.providers import AuthorizedUser
 
 
@@ -44,6 +45,8 @@ async def async_main():
                         bound_to_agent_id=i,
                     )
                 await check_service.ack_check(check_uid=check.uid)
+                uow_ctl = await request_c.get(UoWCtl)
+                await uow_ctl.commit()
 
             await asyncio.sleep(0.01)
 
