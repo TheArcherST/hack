@@ -17,7 +17,7 @@ chown "$SSH_USER:$SSH_USER" "$HOME_DIR/.ssh"
 # Write key from ENV with strict restrictions
 if [ -n "${PUBLIC_KEY:-}" ]; then
   echo "Adding authorized key from ENV"
-  echo "command=\"/bin/false\",no-pty,no-agent-forwarding,no-X11-forwarding" ${PUBLIC_KEY}" \
+  echo "command=\"/bin/false\",no-pty,no-agent-forwarding,no-X11-forwarding ${PUBLIC_KEY}" \
     > "$HOME_DIR/.ssh/authorized_keys"
   chmod 600 "$HOME_DIR/.ssh/authorized_keys"
   chown "$SSH_USER:$SSH_USER" "$HOME_DIR/.ssh/authorized_keys"
