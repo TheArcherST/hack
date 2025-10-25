@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from dishka import make_async_container, FromDishka
 from dishka.integrations.taskiq import inject, setup_dishka, TaskiqProvider
 from taskiq import TaskiqScheduler
+from taskiq.schedule_sources import LabelScheduleSource
 from taskiq_redis import RedisScheduleSource, ListQueueBroker
 
 from hack.core.models.agent import AgentStatus
@@ -28,6 +29,8 @@ redis_source = RedisScheduleSource("redis://redis:6379/0")
 
 # And here's the scheduler that is used to query scheduled sources
 scheduler = TaskiqScheduler(broker, sources=[redis_source])
+
+non_dynamic_scheduler = TaskiqScheduler(broker, sources=[LabelScheduleSource(broker)])
 
 
 @broker.task
