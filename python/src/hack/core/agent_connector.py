@@ -9,6 +9,7 @@ class AgentConnector:
     def __init__(
             self,
             ssh_host: str,
+            ssh_port: int,
             rhost: str,
             rport: int,
             *,
@@ -17,6 +18,7 @@ class AgentConnector:
             passphrase: str | None = None,
     ):
         self.ssh_host = ssh_host
+        self.ssh_port = ssh_port
         self.rhost = rhost
         self.rport = rport
         self.username = username
@@ -26,6 +28,7 @@ class AgentConnector:
     async def connect(self, timeout: float = 10.) -> AsyncGenerator[httpx.AsyncClient, None]:
         async with asyncssh.connect(
                 self.ssh_host,
+                port=self.ssh_port,
                 username=self.username,
                 client_keys=[self.key],  # <- the in-memory key
                 agent_path=None,  # don't use local ssh-agent
@@ -33,12 +36,14 @@ class AgentConnector:
                 password=None,  # enforce key-only
                 known_hosts=None,  # consider pinning in production (see notes)
         ) as conn:
-            # 3) Local ephemeral port -> remote <rhost>:<rport>
             listener = await conn.forward_local_port("127.0.0.1", 0, self.rhost, self.rport)
-            # local_port = listener.get_port()
+            local_port = listener.get_port()
 
             try:
-                async with httpx.AsyncClient(timeout=timeout) as client:
+                async with httpx.AsyncClient(
+                        timeout=timeout,
+                        base_url=f"http://127.0.0.1:{local_port}",
+                ) as client:
                     yield client
             finally:
                 listener.close()

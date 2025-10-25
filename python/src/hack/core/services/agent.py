@@ -47,6 +47,7 @@ class AgentService:
         )
         return AgentConnector(
             ssh_host=agent.ip,
+            ssh_port=agent.ssh_port,
             rhost=agent.rhost,
             rport=agent.rport,
             private_key_pem=agent.keypair.private_key_pem,
