@@ -43,9 +43,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-  heartbeatd:
+  heartbeatd-scheduler:
     build: ./python
     command:  taskiq scheduler hack.heartbeatd.main:scheduler
+    restart: unless-stopped
+    env_file: ./python/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  heartbeatd-worker:
+    build: ./python
+    command: taskiq worker hack.heartbeatd.main:broker
     restart: unless-stopped
     env_file: ./python/.env
     depends_on:
