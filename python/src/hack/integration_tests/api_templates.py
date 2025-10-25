@@ -10,6 +10,18 @@ def make_create_agent():
         url=_base_url + "/agents",
     )
 
+def make_get_agents():
+    return PatchedRequest(
+        method="GET",
+        url=_base_url + "/agents",
+    )
+
+def make_delete_agent():
+    return PatchedRequest(
+        method="DELETE",
+        url=_base_url + "/agents/{agent_id}",
+    )
+
 def make_create_stream_proposition():
     return PatchedRequest(
         method="POST",

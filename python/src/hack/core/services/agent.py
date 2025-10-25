@@ -1,7 +1,7 @@
 from ipaddress import IPv4Address
 
 import asyncssh
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -25,15 +25,12 @@ class AgentService:
             self,
             passphrase: str | None = None,
     ) -> AgentKeypair:
-        # 1) Generate in-memory private key
         algorithm = "ssh-ed25519"
         priv = asyncssh.generate_private_key(algorithm)
 
-        # 2) Export keys as strings (no files)
         pub_line = priv.export_public_key(format_name="openssh")
-        pem = priv.export_private_key(passphrase=passphrase)  # OpenSSH new-format PEM
+        pem = priv.export_private_key(passphrase=passphrase)
 
-        # 3) Persist to DB
         rec = AgentKeypair(
             name=None,
             algorithm=algorithm,
@@ -70,14 +67,16 @@ class AgentService:
 
     async def create_agent(
             self,
-            keypair_id: int,
+            keypair: AgentKeypair,
+            name: str | None,
             ip: IPv4Address,
             port: int,
             rhost: str,
             rport: int,
     ):
         agent = Agent(
-            keypair_id=keypair_id,
+            name=name,
+            keypair=keypair,
             ip=str(ip),
             port=port,
             rhost=rhost,
@@ -88,8 +87,41 @@ class AgentService:
         await self.orm_session.flush()
         return agent
 
-    async def get_agents_with(self):
+    async def update_agent(
+            self,
+            id_: int,
+            name: str | None,
+            ip: IPv4Address,
+            port: int,
+            is_suspended: bool,
+    ) -> Agent:
+        agent = await self.orm_session.get(Agent, id_)
+        agent.name = name
+        agent.ip = str(ip)
+        agent.port = port
+        agent.is_suspended = is_suspended
+        await self.orm_session.flush()
+        return agent
+
+    async def get_agents_with(
+            self,
+            id_: int | None = None,
+    ):
         stmt = (
             select(Agent)
         )
-        return await self.orm_session.execute(stmt)
+        if id_ is not None:
+            stmt = stmt.where(Agent.id == id_)
+
+        return await self.orm_session.scalars(stmt)
+
+    async def delete_agent(
+            self,
+            id_: int,
+    ) -> None:
+        stmt = (
+            delete(Agent)
+            .where(Agent.id == id_)
+        )
+        await self.orm_session.execute(stmt)
+        return None

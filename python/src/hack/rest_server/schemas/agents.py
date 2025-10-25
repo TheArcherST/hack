@@ -1,24 +1,40 @@
 from datetime import datetime
 from ipaddress import IPv4Address
 
-from hack.core.models.agent import AgentStatus
+from pydantic import field_serializer, field_validator, computed_field
+
+from hack.core.models.agent import AgentStatus, Agent
 from hack.rest_server.schemas.base import BaseDTO
 
 
 class CreateAgentDTO(BaseDTO):
+    name: str
     ip: IPv4Address
     port: int
+
+
+class UpdateAgentDTO(BaseDTO):
+    name: str
+    ip: IPv4Address
+    port: int
+    is_suspended: bool
+
+
+class MyKeypairDTO(BaseDTO):
+    public_key_openssh: str
 
 
 class MyAgentDTO(BaseDTO):
+    id: int
+    name: str
     ip: IPv4Address
     port: int
-    public_key: str
-    compose_file: str
     status: AgentStatus
+    is_suspended: bool
     created_at: datetime
+    keypair: MyKeypairDTO
 
-    @property
+    @computed_field(return_type=str)
     def compose_file(
             self,
     ):
@@ -39,4 +55,4 @@ services:
     depends_on:
       - agent
     restart: unless-stopped\
-""".format(public_key=self.public_key, ssh_port=self.port)
+""".format(public_key=self.keypair.public_key_openssh, ssh_port=self.port)

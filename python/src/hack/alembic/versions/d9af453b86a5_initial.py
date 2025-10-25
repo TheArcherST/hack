@@ -1,8 +1,8 @@
 """Initial  
 
-Revision ID: 850e995941c0
+Revision ID: d9af453b86a5
 Revises: 
-Create Date: 2025-10-25 15:23:32.188141
+Create Date: 2025-10-25 16:21:24.309280
 
 """
 from collections.abc import Sequence
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '850e995941c0'
+revision: str = 'd9af453b86a5'
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -53,11 +53,13 @@ def upgrade() -> None:
     )
     op.create_table('agent',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(), nullable=False),
     sa.Column('ip', sa.String(), nullable=False),
     sa.Column('port', sa.Integer(), nullable=False),
     sa.Column('rhost', sa.String(), nullable=False),
     sa.Column('rport', sa.Integer(), nullable=False),
-    sa.Column('suspended_since', sa.DateTime(), nullable=True),
+    sa.Column('is_suspended', sa.Boolean(), nullable=False),
+    sa.Column('status', sa.Enum('DOWN', 'UP', name='agentstatus'), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('keypair_id', sa.Integer(), nullable=False),
     sa.Column('created_by_user_id', sa.Integer(), nullable=False),
