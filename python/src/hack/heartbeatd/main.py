@@ -4,7 +4,7 @@ from dishka import make_async_container, FromDishka
 from dishka.integrations.taskiq import inject, setup_dishka, TaskiqProvider
 from taskiq import TaskiqScheduler
 from taskiq.schedule_sources import LabelScheduleSource
-from taskiq_redis import RedisStreamBroker
+from taskiq_redis import RedisStreamBroker, RedisScheduleSource
 
 from hack.core.models.agent import AgentStatus
 from hack.core.providers import ProviderDatabase, ProviderConfig
@@ -22,6 +22,7 @@ providers = (
 )
 
 broker = RedisStreamBroker("redis://redis:6379")
+schedule_source = RedisScheduleSource("redis://redis:6379")
 scheduler = TaskiqScheduler(
     broker=broker,
     sources=[LabelScheduleSource(broker)],
@@ -63,7 +64,7 @@ async def heartbeat_schedule_loop(
     async for i in await agent_service.stream_ids():
         for j in range(10):  # 60 seconds / 10 = 6 seconds
             await heartbit.schedule_by_time(
-                LabelScheduleSource(broker),
+                schedule_source,
                 datetime.now() + timedelta(seconds=j * 10),
                 agent_id=i,
             )
