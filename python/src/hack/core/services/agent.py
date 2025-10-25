@@ -1,8 +1,7 @@
-from enum import StrEnum
-from ipaddress import IPv4Address
 from typing import Iterable, AsyncIterable
 
 import asyncssh
+from pydantic import IPvAnyAddress
 from sqlalchemy import select, delete, update, func
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -85,7 +84,7 @@ class AgentService:
             self,
             keypair: AgentKeypair,
             name: str | None,
-            ip: IPv4Address,
+            ip: IPvAnyAddress,
             port: int,
             rhost: str,
             rport: int,
@@ -107,7 +106,7 @@ class AgentService:
             self,
             id_: int,
             name: str | None,
-            ip: IPv4Address,
+            ip: IPvAnyAddress,
             port: int,
             is_suspended: bool,
     ) -> Agent:

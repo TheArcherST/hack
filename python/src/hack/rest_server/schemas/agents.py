@@ -1,7 +1,6 @@
 from datetime import datetime
-from ipaddress import IPv4Address
 
-from pydantic import computed_field
+from pydantic import computed_field, IPvAnyAddress
 
 from hack.core.models.agent import AgentStatus, Agent
 from hack.rest_server.schemas.base import BaseDTO
@@ -9,13 +8,13 @@ from hack.rest_server.schemas.base import BaseDTO
 
 class CreateAgentDTO(BaseDTO):
     name: str
-    ip: IPv4Address
+    ip: IPvAnyAddress
     port: int
 
 
 class UpdateAgentDTO(BaseDTO):
     name: str
-    ip: IPv4Address
+    ip: IPvAnyAddress
     port: int
     is_suspended: bool
 
@@ -27,7 +26,7 @@ class MyKeypairDTO(BaseDTO):
 class MyAgentDTO(BaseDTO):
     id: int
     name: str
-    ip: IPv4Address
+    ip: IPvAnyAddress
     port: int
     status: AgentStatus
     is_suspended: bool
