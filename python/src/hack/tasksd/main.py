@@ -1,15 +1,15 @@
 import asyncio
 
-from dishka import make_async_container, Scope, provide, Provider
+import asyncssh
+from dishka import make_async_container, Scope, Provider, provide
 
-from hack.core.models.check_implementations.unions import AnyCheckTaskPayload
-from hack.core.services.agent import AgentService
-
+from hack.core.models.check_implementations.unions import AnyCheckTaskPayload, AnyCheckTaskResult
 from hack.core.providers import ProviderDatabase, ProviderConfig
+from hack.core.services.agent import AgentService
 from hack.core.services.checks import CheckService
 from hack.core.services.providers import ProviderServices
+from hack.core.services.uow_ctl import UoWCtl
 from hack.rest_server.providers import AuthorizedUser
-from hack.rest_server.schemas.checks import AnyCheckTaskPayloadType
 
 
 class NoAuthorizedUser(Provider):
@@ -35,15 +35,25 @@ async def async_main():
             ) as request_c:
                 check_service = await request_c.get(CheckService)
                 agent_service = await request_c.get(AgentService)
-                check = await check_service.acquire_next_check()
-                if check is None:
+                check_task = await check_service.acquire_next_check_task()
+                if check_task is None:
                     continue
-                for i in await agent_service.get_agents_with():
-                    await check_service.create_check_task(
-                        check_uid=check.uid,
-                        payload=AnyCheckTaskPayload.validate_python(check.payload),
-                        bound_to_agent_id=i.id,
-                    )
+                connector = await agent_service.get_connector(
+                    agent_id=check_task.bound_to_agent_id,
+                )
+                try:
+                    async with connector.connect() as conn:
+                        response = conn.post("/check", json=check_task.payload)
+                except TimeoutError:
+                    print(f"Timeout error for agent {check_task.bound_to_agent_id}")
+                    continue
+
+                result = AnyCheckTaskResult.validate_python(response.json())
+
+                await check_service.store_check_task_result(check_task.uid, result)
+                await check_service.ack_check_task(check_task.uid)
+                uow_ctl = await request_c.get(UoWCtl)
+                await uow_ctl.commit()
 
             await asyncio.sleep(0.01)
 

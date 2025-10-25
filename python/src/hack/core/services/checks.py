@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 from uuid import UUID
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import or_, select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hack.core.models.check import Check
@@ -42,12 +42,25 @@ class CheckService:
     ) -> Check | None:
         stmt = (
             select(Check)
+            .where(Check.acked_at.is_not(None))
             .order_by(Check.created_at.asc())
             .limit(1)
             .with_for_update(skip_locked=True)
         )
         check = await self.orm_session.scalar(stmt)
         return check
+
+    async def ack_check(
+            self,
+            check_uid: UUID,
+    ) -> None:
+        stmt = (
+            update(Check)
+            .where(Check.uid == check_uid)
+            .values(acked_at=func.now())
+        )
+        await self.orm_session.execute(stmt)
+        return None
 
     async def create_check_task(
             self,
@@ -75,6 +88,18 @@ class CheckService:
         )
         check_task = await self.orm_session.scalar(stmt)
         return check_task
+
+    async def ack_check_task(
+            self,
+            check_task_uid: UUID,
+    ) -> None:
+        stmt = (
+            update(CheckTask)
+            .where(CheckTask.uid == check_task_uid)
+            .values(acked_at=func.now())
+        )
+        await self.orm_session.execute(stmt)
+        return None
 
     async def get_check_tasks_with(
             self,

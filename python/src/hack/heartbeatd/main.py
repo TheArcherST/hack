@@ -11,7 +11,7 @@ from hack.core.providers import ProviderDatabase, ProviderConfig
 from hack.core.services.agent import AgentService
 from hack.core.services.providers import ProviderServices
 from hack.core.services.uow_ctl import UoWCtl
-from hack.tasksd.main import NoAuthorizedUser
+from hack.bindingd.main import NoAuthorizedUser
 
 providers = (
     ProviderConfig(),
@@ -67,7 +67,7 @@ async def heartbeat_schedule_loop(
         agent_service: FromDishka[AgentService],
 ):
     print("Enter heartbeat schedule loop")
-    async for i in await agent_service.stream_ids():
+    async for i in await agent_service.stream_up_ids():
         for j in range(10):  # 60 seconds / 10 = 6 seconds
             await heartbit.schedule_by_time(
                 redis_source,

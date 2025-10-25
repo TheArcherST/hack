@@ -2,7 +2,7 @@ from ipaddress import IPv4Address
 from typing import Iterable, AsyncIterable
 
 import asyncssh
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, func
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -118,8 +118,20 @@ class AgentService:
         await self.orm_session.flush()
         return agent
 
-    async def stream_ids(self) -> AsyncIterable[int]:
-        stmt = (select(Agent.id))
+    async def stream_up_ids(
+            self,
+            limit: int | None = None,
+            random_order: bool = False,
+    ) -> AsyncIterable[int]:
+        stmt = (
+            select(Agent.id)
+            .where(Agent.status.is_(AgentStatus.UP))
+            .where(Agent.is_suspended.is_(False))
+        )
+        if limit is not None:
+            stmt = stmt.limit(limit)
+        if random_order:
+            stmt = stmt.order_by(func.random())
         return await self.orm_session.stream_scalars(stmt)
 
     async def get_agents_with(

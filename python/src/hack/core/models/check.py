@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import JSON
@@ -17,5 +18,6 @@ class Check(Base):
     payload: Mapped[dict] = mapped_column(JSON)
 
     created_at: Mapped[CreatedAt]
+    acked_at: Mapped[datetime | None] = mapped_column()
 
     tasks: Mapped[list[CheckTask]] = relationship(lazy="selectin")
