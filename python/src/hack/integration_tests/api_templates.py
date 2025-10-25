@@ -4,12 +4,6 @@ from hack.integration_tests.base import PatchedRequest
 _base_url = "http://rest-server"  # docker compose address
 
 
-def make_issue_agent_create_credentials():
-    return PatchedRequest(
-        method="POST",
-        url=_base_url + "/agents/create-credentials",
-    )
-
 def make_create_agent():
     return PatchedRequest(
         method="POST",

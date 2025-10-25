@@ -8,7 +8,7 @@ def test_streams(
         client,
         authed_client,
 ):
-    req = api_templates.make_issue_agent_create_credentials()
+    req = api_templates.make_create_agent()
     req.json = {
         "port": 52141,
     }
