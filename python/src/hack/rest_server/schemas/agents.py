@@ -30,6 +30,7 @@ class MyAgentDTO(BaseDTO):
     ip: IPv4Address
     port: int
     status: AgentStatus
+    is_suspended: bool
     created_at: datetime
     keypair: MyKeypairDTO
 
