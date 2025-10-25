@@ -4,7 +4,7 @@ from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from hack.rest_server import (
+from hack.agent.rest_server import (
     routers,
 )
 

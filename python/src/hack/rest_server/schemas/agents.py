@@ -1,7 +1,6 @@
 from datetime import datetime
-from ipaddress import IPv4Address
 
-from pydantic import field_serializer, field_validator, computed_field
+from pydantic import computed_field, IPvAnyAddress
 
 from hack.core.models.agent import AgentStatus, Agent
 from hack.rest_server.schemas.base import BaseDTO
@@ -9,13 +8,13 @@ from hack.rest_server.schemas.base import BaseDTO
 
 class CreateAgentDTO(BaseDTO):
     name: str
-    ip: IPv4Address
+    ip: IPvAnyAddress
     port: int
 
 
 class UpdateAgentDTO(BaseDTO):
     name: str
-    ip: IPv4Address
+    ip: IPvAnyAddress
     port: int
     is_suspended: bool
 
@@ -27,7 +26,7 @@ class MyKeypairDTO(BaseDTO):
 class MyAgentDTO(BaseDTO):
     id: int
     name: str
-    ip: IPv4Address
+    ip: IPvAnyAddress
     port: int
     status: AgentStatus
     is_suspended: bool
@@ -41,12 +40,12 @@ class MyAgentDTO(BaseDTO):
         return """\
 services:
   agent:
-    build: https://git@git.sourcecraft.dev/lvalue/hack-backend.git#main:python
+    build: https://github.com/TheArcherST/hack.git#main:python
     command: run-agent-rest-server
     container_name: lvalue-agent
     restart: unless-stopped
   sshd:
-    build: https://git@git.sourcecraft.dev/lvalue/hack-backend.git#main:sshd
+    build: https://github.com/TheArcherST/hack.git#main:sshd
     container_name: lvalue-sshd
     environment:
       PUBLIC_KEY: "{public_key}"

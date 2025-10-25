@@ -16,7 +16,7 @@ class BoundToAgentDTO(BaseDTO):
 class CheckTaskDTO(BaseDTO):
     bound_to_agent: BoundToAgentDTO
     payload: AnyCheckTaskPayloadType
-    result: AnyCheckTaskResultType
+    result: AnyCheckTaskResultType | None
 
 
 class CheckDTO(BaseDTO):

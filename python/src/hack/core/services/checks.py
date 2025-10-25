@@ -1,13 +1,14 @@
+import json
 from collections.abc import Iterable
 from uuid import UUID
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import or_, select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from hack.core.models.agent import AgentStatus
 from hack.core.models.check import Check
 from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
 from hack.core.models.check_task.model import CheckTask
-from hack.rest_server.providers import AuthorizedUser
 
 
 class StreamsServiceError(Exception):
@@ -22,20 +23,30 @@ class CheckService:
     def __init__(
             self,
             orm_session: AsyncSession,
-            authorized_user: AuthorizedUser,
     ):
         self.orm_session = orm_session
-        self.authorized_user = authorized_user
+
+    async def notify_check_task_failed(
+            self,
+            check_task_uid: UUID,
+    ):
+        stmt = (
+            update(CheckTask)
+            .where(CheckTask.uid == check_task_uid)
+            .values({CheckTask.failed_count: CheckTask.failed_count + 1})
+        )
+        await self.orm_session.execute(stmt)
 
     async def create_check(
             self,
             payload: BaseCheckTaskPayload,
     ) -> Check:
         check = Check(
-            payload=payload.model_dump(),
+            payload=payload.model_dump(mode="json"),
         )
         self.orm_session.add(check)
         await self.orm_session.flush()
+        await self.orm_session.refresh(check)
 
         return check
 
@@ -44,12 +55,25 @@ class CheckService:
     ) -> Check | None:
         stmt = (
             select(Check)
+            .where(Check.acked_at.is_(None))
             .order_by(Check.created_at.asc())
             .limit(1)
             .with_for_update(skip_locked=True)
         )
         check = await self.orm_session.scalar(stmt)
         return check
+
+    async def ack_check(
+            self,
+            check_uid: UUID,
+    ) -> None:
+        stmt = (
+            update(Check)
+            .where(Check.uid == check_uid)
+            .values(acked_at=func.now())
+        )
+        await self.orm_session.execute(stmt)
+        return None
 
     async def create_check_task(
             self,
@@ -59,7 +83,7 @@ class CheckService:
     ) -> CheckTask:
         check_task = CheckTask(
             check_uid=check_uid,
-            payload=payload.model_dump(),
+            payload=payload.model_dump(mode="json"),
             result=None,
             bound_to_agent_id=bound_to_agent_id,
         )
@@ -71,6 +95,7 @@ class CheckService:
         stmt = (
             select(CheckTask)
             .where(CheckTask.acked_at.is_(None))
+            .where(CheckTask.failed_count <= 5)  # todo: rebinding
             .order_by(CheckTask.created_at.asc())
             .limit(1)
             .with_for_update(skip_locked=True)
@@ -78,13 +103,35 @@ class CheckService:
         check_task = await self.orm_session.scalar(stmt)
         return check_task
 
+    async def ack_check_task(
+            self,
+            check_task_uid: UUID,
+    ) -> None:
+        stmt = (
+            update(CheckTask)
+            .where(CheckTask.uid == check_task_uid)
+            .values(acked_at=func.now())
+        )
+        await self.orm_session.execute(stmt)
+        return None
+
+    async def get_check(
+            self,
+            check_uid: UUID,
+    ) -> Check | None:
+        stmt = (
+            select(Check)
+            .where(Check.uid == check_uid)
+        )
+        return await self.orm_session.scalar(stmt)
+
     async def get_check_tasks_with(
             self,
             check_uid: UUID,
     ) -> Iterable[CheckTask]:
         stmt = (
             select(CheckTask)
-            .where(CheckTask.check_uid.is_(check_uid))
+            .where(CheckTask.check_uid == check_uid)
         )
         return await self.orm_session.scalars(stmt)
 
@@ -95,7 +142,10 @@ class CheckService:
     ) -> None:
         stmt = (
             update(CheckTask)
-            .where(CheckTask.check_uid.is_(check_uid))
-            .values(result=result.model_dump())
+            .where(CheckTask.check_uid == check_uid)
+            .values(
+                result=result.model_dump(mode="json"),
+                acked_at=func.now(),
+            )
         )
         await self.orm_session.execute(stmt)

@@ -22,16 +22,10 @@ def make_delete_agent():
         url=_base_url + "/agents/{agent_id}",
     )
 
-def make_create_stream_proposition():
+def make_create_check():
     return PatchedRequest(
         method="POST",
-        url=_base_url + "/streams/{stream_id}/propositions",
-    )
-
-def make_get_stream_propositions():
-    return PatchedRequest(
-        method="GET",
-        url=_base_url + "/streams/{stream_id}/propositions",
+        url=_base_url + "/checks",
     )
 
 def make_register():

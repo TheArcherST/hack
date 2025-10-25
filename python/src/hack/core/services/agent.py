@@ -1,13 +1,15 @@
-from ipaddress import IPv4Address
+from typing import Iterable, AsyncIterable
 
 import asyncssh
-from sqlalchemy import select, delete
+from pydantic import IPvAnyAddress
+from sqlalchemy import select, delete, update, func
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from hack.core.agent_connector import AgentConnector
 from hack.core.models import Agent
+from hack.core.models.agent import AgentStatus
 from hack.core.models.agent_keypair import AgentKeypair
 from hack.rest_server.providers import AuthorizedUser
 
@@ -20,6 +22,18 @@ class AgentService:
     ):
         self.orm_session = orm_session
         self.authorized_user = authorized_user
+
+    async def heartbit_mark(
+            self,
+            agent_id: int,
+            status: AgentStatus,
+    ) -> None:
+        stmt = (
+            update(Agent)
+            .where(Agent.id == agent_id)
+            .values({Agent.status: status})
+        )
+        await self.orm_session.execute(stmt)
 
     async def issue_keypair(
             self,
@@ -35,7 +49,7 @@ class AgentService:
             name=None,
             algorithm=algorithm,
             public_key_openssh=pub_line.decode("utf-8"),
-            private_key_pem=pem,
+            private_key_pem=pem.decode("utf-8"),
         )
         self.orm_session.add(rec)
         await self.orm_session.commit()
@@ -63,13 +77,14 @@ class AgentService:
             rhost=agent.rhost,
             rport=agent.rport,
             private_key_pem=agent.keypair.private_key_pem,
+            username="appuser",
         )
 
     async def create_agent(
             self,
             keypair: AgentKeypair,
             name: str | None,
-            ip: IPv4Address,
+            ip: IPvAnyAddress,
             port: int,
             rhost: str,
             rport: int,
@@ -91,7 +106,7 @@ class AgentService:
             self,
             id_: int,
             name: str | None,
-            ip: IPv4Address,
+            ip: IPvAnyAddress,
             port: int,
             is_suspended: bool,
     ) -> Agent:
@@ -103,10 +118,26 @@ class AgentService:
         await self.orm_session.flush()
         return agent
 
+    async def stream_up_ids(
+            self,
+            limit: int | None = None,
+            random_order: bool = False,
+    ) -> AsyncIterable[int]:
+        stmt = (
+            select(Agent.id)
+            .where(Agent.status == AgentStatus.UP)
+            .where(Agent.is_suspended.is_(False))
+        )
+        if limit is not None:
+            stmt = stmt.limit(limit)
+        if random_order:
+            stmt = stmt.order_by(func.random())
+        return await self.orm_session.stream_scalars(stmt)
+
     async def get_agents_with(
             self,
             id_: int | None = None,
-    ):
+    ) -> Iterable[Agent]:
         stmt = (
             select(Agent)
         )

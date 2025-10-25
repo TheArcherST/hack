@@ -1,8 +1,10 @@
 import asyncio
 
-from dishka import make_async_container, Scope, Provider, provide
+from dishka import make_async_container, Scope, provide, Provider
 
 from hack.core.models.check_implementations.unions import AnyCheckTaskPayload
+from hack.core.services.agent import AgentService
+
 from hack.core.providers import ProviderDatabase, ProviderConfig
 from hack.core.services.checks import CheckService
 from hack.core.services.providers import ProviderServices
@@ -32,15 +34,18 @@ async def async_main():
                     scope=Scope.REQUEST,
             ) as request_c:
                 check_service = await request_c.get(CheckService)
-                # agent_service = await request_c.get(AgentService)
-                check_task = await check_service.acquire_next_check_task()
-                if check_task is None:
+                agent_service = await request_c.get(AgentService)
+                check = await check_service.acquire_next_check()
+                print(f"Acquired check: {check}")
+                if check is None:
                     continue
-                payload = AnyCheckTaskPayload.model_validate(check_task.payload)
-                # todo: implement calling remote agents
-                result = await payload.perform_check()
-                check_task.result = result.model_dump()
-                await check_service.store_check_task_result(check_task.uid, result)
+                async for i in await agent_service.stream_up_ids(limit=10, random_order=True):
+                    await check_service.create_check_task(
+                        check_uid=check.uid,
+                        payload=AnyCheckTaskPayload.validate_python(check.payload),
+                        bound_to_agent_id=i,
+                    )
+                await check_service.ack_check(check_uid=check.uid)
                 uow_ctl = await request_c.get(UoWCtl)
                 await uow_ctl.commit()
 

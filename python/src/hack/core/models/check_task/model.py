@@ -16,9 +16,10 @@ class CheckTask(Base):
     check_uid: Mapped[UUID] = mapped_column(ForeignKey("check.uid"))
     payload: Mapped[dict] = mapped_column(JSON)
     result: Mapped[dict | None] = mapped_column(JSON)
-    acked_at: Mapped[datetime | None]
+    acked_at: Mapped[datetime | None] = mapped_column()
+    failed_count: Mapped[int] = mapped_column(default=0)
     created_at: Mapped[CreatedAt]
 
     bound_to_agent_id: Mapped[int] = mapped_column(ForeignKey("agent.id"))
 
-    bound_to_agent: Mapped[Agent] = relationship()
+    bound_to_agent: Mapped[Agent] = relationship(lazy="selectin")

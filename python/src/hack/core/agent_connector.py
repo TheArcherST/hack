@@ -27,14 +27,16 @@ class AgentConnector:
     @asynccontextmanager
     async def connect(self, timeout: float = 10.) -> AsyncGenerator[httpx.AsyncClient, None]:
         async with asyncssh.connect(
-                self.ssh_host,
-                port=self.ssh_port,
-                username=self.username,
-                client_keys=[self.key],  # <- the in-memory key
-                agent_path=None,  # don't use local ssh-agent
-                agent_forwarding=False,  # not needed here
-                password=None,  # enforce key-only
-                known_hosts=None,  # consider pinning in production (see notes)
+            self.ssh_host,
+            port=self.ssh_port,
+            username=self.username,
+            client_keys=[self.key],  # <- the in-memory key
+            agent_path=None,  # don't use local ssh-agent
+            agent_forwarding=False,  # not needed here
+            password=None,  # enforce key-only
+            known_hosts=None,  # consider pinning in production (see notes)
+            connect_timeout=timeout,
+            login_timeout=timeout,
         ) as conn:
             listener = await conn.forward_local_port("127.0.0.1", 0, self.rhost, self.rport)
             local_port = listener.get_port()
