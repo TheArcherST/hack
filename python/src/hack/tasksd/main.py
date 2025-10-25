@@ -56,6 +56,7 @@ async def async_main():
                     continue
 
                 result = AnyCheckTaskResult.validate_python(response.json())
+                print(f"Store result: {result}")
 
                 await check_service.store_check_task_result(check_task.uid, result)
                 await check_service.ack_check_task(check_task.uid)
