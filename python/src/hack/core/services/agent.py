@@ -49,7 +49,7 @@ class AgentService:
             name=None,
             algorithm=algorithm,
             public_key_openssh=pub_line.decode("utf-8"),
-            private_key_pem=pem,
+            private_key_pem=pem.decode("utf-8"),
         )
         self.orm_session.add(rec)
         await self.orm_session.commit()
