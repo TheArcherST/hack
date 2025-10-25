@@ -1,18 +1,13 @@
 from datetime import datetime
-from enum import StrEnum
 from ipaddress import IPv4Address
 
+from hack.core.models.agent import AgentStatus
 from hack.rest_server.schemas.base import BaseDTO
 
 
 class CreateAgentDTO(BaseDTO):
     ip: IPv4Address
     port: int
-
-
-class AgentStatus(StrEnum):
-    DOWN = "down"
-    UP = "up"
 
 
 class MyAgentDTO(BaseDTO):
