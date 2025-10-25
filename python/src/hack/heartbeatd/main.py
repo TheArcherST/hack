@@ -36,6 +36,7 @@ async def heartbit(
         uow_ctl: FromDishka[UoWCtl],
         agent_id: int,
 ):
+    print("Enter heartbit check")
     connector = await agent_service.get_connector(agent_id)
     async with connector.connect() as conn:
         try:
@@ -46,6 +47,7 @@ async def heartbit(
             status = AgentStatus.DOWN
         else:
             status = AgentStatus.UP
+        print(f"Status of agent {agent_id} is set to {status}")
         await agent_service.heartbit_mark(
             agent_id=agent_id,
             status=status,
