@@ -9,14 +9,3 @@ GatewayPorts no
 X11Forwarding no
 AllowAgentForwarding no
 AllowStreamLocalForwarding no
-
-# Default: no forwarding unless matched
-AllowTcpForwarding no
-
-# Narrow allowance for your user
-Match User appuser
-    AllowTcpForwarding local
-    PermitOpen agent:8000
-    PermitTTY no
-    # If you use ForceCommand (e.g., internal-sftp), keep it AND re-allow:
-    # ForceCommand internal-sftp
