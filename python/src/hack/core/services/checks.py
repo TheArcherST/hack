@@ -42,7 +42,7 @@ class CheckService:
     ) -> Check | None:
         stmt = (
             select(Check)
-            .where(Check.acked_at.is_not(None))
+            .where(Check.acked_at.is_(None))
             .order_by(Check.created_at.asc())
             .limit(1)
             .with_for_update(skip_locked=True)
