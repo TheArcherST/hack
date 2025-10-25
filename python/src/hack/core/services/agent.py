@@ -1,4 +1,5 @@
 import asyncssh
+from sqlalchemy import select
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -65,3 +66,9 @@ class AgentService:
             rport=rport,
 
         )
+
+    async def get_agents_with(self):
+        stmt = (
+            select(Agent)
+        )
+        return await self.orm_session.execute(stmt)

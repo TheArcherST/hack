@@ -7,7 +7,7 @@ from fastapi import APIRouter, status
 from hack.core.models.check import Check
 from hack.core.services.checks import CheckService
 from hack.core.services.uow_ctl import UoWCtl
-from hack.server.schemas.checks import (
+from hack.rest_server.schemas.checks import (
     CreateCheckDTO,
     CheckDTO,
 )

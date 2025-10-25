@@ -43,6 +43,22 @@ services:
     depends_on:
       - postgres
       - redis
+  tasksd:
+    build: ./python
+    command: run-tasksd
+    restart: unless-stopped
+    env_file: ./python/.env
+    depends_on:
+      - postgres
+      - redis
+  bindingd:
+    build: ./python
+    command: run-bindingd
+    restart: unless-stopped
+    env_file: ./python/.env
+    depends_on:
+      - postgres
+      - redis
   tool-alembic:
     profiles:
       - tools

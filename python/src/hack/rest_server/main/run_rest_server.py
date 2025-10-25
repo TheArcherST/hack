@@ -6,11 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from hack.core.providers import ProviderConfig, ProviderDatabase
 from hack.core.services.providers import ProviderServices
-from hack.server import (
+from hack.rest_server import (
     exception_handlers,
     routers,
 )
-from hack.server.providers import ProviderServer
+from hack.rest_server.providers import ProviderServer
 
 
 def main():

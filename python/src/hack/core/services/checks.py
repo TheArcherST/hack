@@ -1,11 +1,13 @@
 from collections.abc import Iterable
-from typing import Any, Literal
+from uuid import UUID
 
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from hack.core.models.check import Check
-from hack.server.providers import AuthorizedUser
+from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
+from hack.core.models.check_task.model import CheckTask
+from hack.rest_server.providers import AuthorizedUser
 
 
 class StreamsServiceError(Exception):
@@ -27,50 +29,73 @@ class CheckService:
 
     async def create_check(
             self,
+            payload: BaseCheckTaskPayload,
     ) -> Check:
         check = Check(
-
+            payload=payload.model_dump(),
         )
-        stream = Stream(
-            name=name,
-            json_schema=json_schema,
-            created_by_user_id=self.authorized_user.id,
-            is_private=is_private,
-            record_intent=RecordIntent(
-                ttl=None,
-                errata_allowed=True,
-            ),
-        )
-        self.orm_session.add(stream)
+        self.orm_session.add(check)
         await self.orm_session.flush()
 
-        return stream
+        return check
 
-    def _accessible_streams_stmt(self):
-        stmt = (select(Stream)
-                .where(
-                    or_(Stream.created_by_user_id == self.authorized_user.id,
-                        Stream.is_private.is_(False)))
-                )
-        return stmt
-
-    async def get_checks(
+    async def acquire_next_check(
             self,
-    ) -> Iterable[Check]:
-        stmt = self._accessible_streams_stmt()
+    ) -> Check | None:
+        stmt = (
+            select(Check)
+            .order_by(Check.created_at.asc())
+            .limit(1)
+            .with_for_update(skip_locked=True)
+        )
+        check = await self.orm_session.scalar(stmt)
+        return check
+
+    async def create_check_task(
+            self,
+            check_uid: UUID,
+            payload: BaseCheckTaskPayload,
+            bound_to_agent_id: int,
+    ) -> CheckTask:
+        check_task = CheckTask(
+            check_uid=check_uid,
+            payload=payload.model_dump(),
+            result=None,
+            bound_to_agent_id=bound_to_agent_id,
+        )
+        self.orm_session.add(check_task)
+        await self.orm_session.flush()
+        return check_task
+
+    async def acquire_next_check_task(self) -> CheckTask | None:
+        stmt = (
+            select(CheckTask)
+            .where(CheckTask.acked_at.is_(None))
+            .order_by(CheckTask.created_at.asc())
+            .limit(1)
+            .with_for_update(skip_locked=True)
+        )
+        check_task = await self.orm_session.scalar(stmt)
+        return check_task
+
+    async def get_check_tasks_with(
+            self,
+            check_uid: UUID,
+    ) -> Iterable[CheckTask]:
+        stmt = (
+            select(CheckTask)
+            .where(CheckTask.check_uid.is_(check_uid))
+        )
         return await self.orm_session.scalars(stmt)
 
-    async def get_check_with(
+    async def store_check_task_result(
             self,
-            id_: int | None = None,
-            name: str | None = None,
-    ) -> Check | None:
-        stmt = self._accessible_streams_stmt()
-
-        if id_ is not None:
-            stmt = stmt.where(Stream.id == id_)
-        if name is not None:
-            stmt = stmt.where(Stream.name == name)
-
-        stream = await self.orm_session.scalar(stmt)
-        return stream
+            check_uid: UUID,
+            result: BaseCheckTaskResult,
+    ) -> None:
+        stmt = (
+            update(CheckTask)
+            .where(CheckTask.check_uid.is_(check_uid))
+            .values(result=result.model_dump())
+        )
+        await self.orm_session.execute(stmt)

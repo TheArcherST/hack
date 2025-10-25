@@ -1,4 +1,6 @@
+import uuid
 from datetime import datetime
+from uuid import UUID
 
 from sqlalchemy import JSON, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped
@@ -11,6 +13,7 @@ class Check(Base):
 
     __tablename__ = "check"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    uid: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     payload: Mapped[dict] = mapped_column(JSON)
+
     created_at: Mapped[CreatedAt]
