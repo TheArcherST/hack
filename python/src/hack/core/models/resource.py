@@ -1,6 +1,6 @@
 from sqlalchemy.orm import mapped_column, Mapped
 
-from hack.core.models.base import Base
+from hack.core.models.base import Base, CreatedAt
 
 
 class Resource(Base):
@@ -13,3 +13,5 @@ class Resource(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     uri: Mapped[str]
+
+    created_at: Mapped[CreatedAt]

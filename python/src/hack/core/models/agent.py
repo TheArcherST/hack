@@ -1,8 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base
+from .agent_keypair import AgentKeypair
+from .base import Base, CreatedAt
 
 
 class Agent(Base):
@@ -10,6 +12,12 @@ class Agent(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     ip: Mapped[str] = mapped_column(unique=True)
-    ssh_public_key: Mapped[str] = mapped_column(unique=True)
+    rhost: Mapped[str] = mapped_column()
+    rport: Mapped[int] = mapped_column()
     suspended_since: Mapped[datetime | None] = mapped_column()
-    created_at: Mapped[datetime] = mapped_column()
+    created_at: Mapped[CreatedAt]
+
+    keypair_id: Mapped[int] = mapped_column(ForeignKey("agent_keypair.id"))
+
+    keypair: Mapped[AgentKeypair] = relationship()
+
