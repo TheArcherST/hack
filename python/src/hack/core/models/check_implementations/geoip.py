@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import geoip2.database
-from pydantic import IPvAnyAddress, HttpUrl
+from pydantic import IPvAnyAddress, HttpUrl, AnyUrl
 from typing import Any, Literal
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
@@ -14,7 +14,7 @@ class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.GEOIP] = CheckTaskTypeEnum.GEOIP
 
     ip: IPvAnyAddress | None = None
-    url: HttpUrl | None = None
+    url: AnyUrl | None = None
     db_asn_path: str = "/usr/src/app/GeoLite2-ASN.mmdb"
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 
