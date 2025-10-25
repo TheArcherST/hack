@@ -42,7 +42,7 @@ class CheckService:
             payload: BaseCheckTaskPayload,
     ) -> Check:
         check = Check(
-            payload=json.loads(payload.model_dump_json()),
+            payload=payload.model_dump(mode="json"),
         )
         self.orm_session.add(check)
         await self.orm_session.flush()
@@ -83,7 +83,7 @@ class CheckService:
     ) -> CheckTask:
         check_task = CheckTask(
             check_uid=check_uid,
-            payload=payload.model_dump(),
+            payload=payload.model_dump(mode="json"),
             result=None,
             bound_to_agent_id=bound_to_agent_id,
         )
@@ -143,6 +143,6 @@ class CheckService:
         stmt = (
             update(CheckTask)
             .where(CheckTask.check_uid == check_uid)
-            .values(result=result.model_dump())
+            .values(result=result.model_dump(mode="json"))
         )
         await self.orm_session.execute(stmt)
