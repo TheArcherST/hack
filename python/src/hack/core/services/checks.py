@@ -107,7 +107,7 @@ class CheckService:
     ) -> Iterable[CheckTask]:
         stmt = (
             select(CheckTask)
-            .where(CheckTask.check_uid.is_(check_uid))
+            .where(CheckTask.check_uid == check_uid)
         )
         return await self.orm_session.scalars(stmt)
 
@@ -118,7 +118,7 @@ class CheckService:
     ) -> None:
         stmt = (
             update(CheckTask)
-            .where(CheckTask.check_uid.is_(check_uid))
+            .where(CheckTask.check_uid == check_uid)
             .values(result=result.model_dump())
         )
         await self.orm_session.execute(stmt)
