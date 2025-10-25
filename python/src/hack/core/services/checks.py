@@ -33,6 +33,7 @@ class CheckService:
         )
         self.orm_session.add(check)
         await self.orm_session.flush()
+        await self.orm_session.refresh(check)
 
         return check
 
