@@ -143,6 +143,9 @@ class CheckService:
         stmt = (
             update(CheckTask)
             .where(CheckTask.check_uid == check_uid)
-            .values(result=result.model_dump(mode="json"))
+            .values(
+                result=result.model_dump(mode="json"),
+                acked_at=func.now(),
+            )
         )
         await self.orm_session.execute(stmt)
