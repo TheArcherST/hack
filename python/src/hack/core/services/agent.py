@@ -77,6 +77,7 @@ class AgentService:
             rhost=agent.rhost,
             rport=agent.rport,
             private_key_pem=agent.keypair.private_key_pem,
+            username="appuser",
         )
 
     async def create_agent(
