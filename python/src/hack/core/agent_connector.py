@@ -8,8 +8,8 @@ import httpx
 class AgentConnector:
     def __init__(
             self,
-            ssh_host: str,
-            ssh_port: int,
+            host: str,
+            port: int,
             rhost: str,
             rport: int,
             *,
@@ -17,8 +17,8 @@ class AgentConnector:
             private_key_pem: str,
             passphrase: str | None = None,
     ):
-        self.ssh_host = ssh_host
-        self.ssh_port = ssh_port
+        self.ssh_host = host
+        self.ssh_port = port
         self.rhost = rhost
         self.rport = rport
         self.username = username

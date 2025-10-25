@@ -58,8 +58,8 @@ class AgentService:
             options=(joinedload(Agent.keypair),),
         )
         return AgentConnector(
-            ssh_host=agent.ssh_ip,
-            ssh_port=agent.ssh_port,
+            host=agent.ip,
+            port=agent.port,
             rhost=agent.rhost,
             rport=agent.rport,
             private_key_pem=agent.keypair.private_key_pem,
@@ -68,15 +68,15 @@ class AgentService:
     async def create_agent(
             self,
             keypair_id: int,
-            ssh_ip: IPv4Address,
-            ssh_port: int,
+            ip: IPv4Address,
+            port: int,
             rhost: str,
             rport: int,
     ):
         agent = Agent(
             keypair_id=keypair_id,
-            ssh_ip=str(ssh_ip),
-            ssh_port=ssh_port,
+            ip=str(ip),
+            port=port,
             rhost=rhost,
             rport=rport,
         )

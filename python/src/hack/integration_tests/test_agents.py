@@ -9,5 +9,9 @@ def test_streams(
         authed_client,
 ):
     req = api_templates.make_issue_agent_create_credentials()
+    req.json = {
+        "port": 52141,
+    }
     r = client.prepsend(req)
     assert r.status_code == 201
+    assert "52141" in str(r.json())

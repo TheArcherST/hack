@@ -11,8 +11,8 @@ class Agent(Base):
     __tablename__ = "agent"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    ssh_ip: Mapped[str] = mapped_column(unique=True)
-    ssh_port: Mapped[int] = mapped_column()
+    ip: Mapped[str] = mapped_column(unique=True)
+    port: Mapped[int] = mapped_column()
     rhost: Mapped[str] = mapped_column()
     rport: Mapped[int] = mapped_column()
     suspended_since: Mapped[datetime | None] = mapped_column()
