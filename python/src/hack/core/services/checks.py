@@ -137,12 +137,12 @@ class CheckService:
 
     async def store_check_task_result(
             self,
-            check_uid: UUID,
+            check_task_uid: UUID,
             result: BaseCheckTaskResult,
     ) -> None:
         stmt = (
             update(CheckTask)
-            .where(CheckTask.check_uid == check_uid)
+            .where(CheckTask.uid == check_task_uid)
             .values(
                 result=result.model_dump(mode="json"),
                 acked_at=func.now(),
