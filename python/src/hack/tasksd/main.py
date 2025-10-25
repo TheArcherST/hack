@@ -43,7 +43,7 @@ async def async_main():
                 )
                 try:
                     async with connector.connect() as conn:
-                        response = conn.post("/check", json=check_task.payload)
+                        response = await conn.post("/check", json=check_task.payload)
                 except TimeoutError:
                     print(f"Timeout error for agent {check_task.bound_to_agent_id}")
                     continue
