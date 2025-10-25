@@ -20,6 +20,7 @@ RUN wget https://github.com/P3TERX/GeoLite.mmdb/releases/latest/download/GeoLite
 COPY cron-update-geoip /etc/cron.d/cron-update-geoip
 RUN chmod 0644 /etc/cron.d/cron-update-geoip
 RUN crontab /etc/cron.d/cron-update-geoip
+
 RUN pip install poetry
 
 COPY pyproject.toml poetry.lock ./

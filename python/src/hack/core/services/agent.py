@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from hack.agent.connector import AgentConnector
+from hack.core.agent_connector import AgentConnector
 from hack.core.models import Agent
 from hack.core.models.agent_keypair import AgentKeypair
 
@@ -64,8 +64,9 @@ class AgentService:
             ip=ip,
             rhost=rhost,
             rport=rport,
-
         )
+        self.orm_session.add(agent)
+        await self.orm_session.flush()
 
     async def get_agents_with(self):
         stmt = (

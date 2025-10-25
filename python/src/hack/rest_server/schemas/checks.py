@@ -2,11 +2,11 @@ from uuid import UUID
 
 from .base import BaseDTO
 
-from hack.core.models.check_implementations.unions import AnyCheckTaskPayload, AnyCheckTaskResult
+from hack.core.models.check_implementations.unions import AnyCheckTaskPayloadType, AnyCheckTaskResultType
 
 
 class CreateCheckDTO(BaseDTO):
-    payload: AnyCheckTaskPayload
+    payload: AnyCheckTaskPayloadType
 
 
 class BoundToAgentDTO(BaseDTO):
@@ -15,8 +15,8 @@ class BoundToAgentDTO(BaseDTO):
 
 class CheckTaskDTO(BaseDTO):
     bound_to_agent: BoundToAgentDTO
-    payload: AnyCheckTaskPayload
-    result: AnyCheckTaskResult
+    payload: AnyCheckTaskPayloadType
+    result: AnyCheckTaskResultType
 
 
 class CheckDTO(BaseDTO):

@@ -34,6 +34,7 @@ build-backend = "poetry.core.masonry.api"
 run-rest-server = "hack.rest_server.main.run_rest_server:main"
 run-tasksd = "hack.tasksd.main:main"
 run-bindingd = "hack.bindingd.main:main"
+run-agent-rest-server = "hack.agent.rest_server.main.run_rest_server:main"
 
 [tool.ruff]
 line-length = 79

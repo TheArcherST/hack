@@ -2,12 +2,12 @@ import asyncio
 
 from dishka import make_async_container, Scope, Provider, provide
 
+from hack.core.models.check_implementations.unions import AnyCheckTaskPayload
 from hack.core.providers import ProviderDatabase, ProviderConfig
 from hack.core.services.checks import CheckService
 from hack.core.services.providers import ProviderServices
 from hack.core.services.uow_ctl import UoWCtl
 from hack.rest_server.providers import AuthorizedUser
-from hack.rest_server.schemas.checks import AnyCheckTaskPayload
 
 
 class NoAuthorizedUser(Provider):

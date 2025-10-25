@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import Discriminator
+from pydantic import Discriminator, TypeAdapter
 
 from .dns import DNSCheckTaskPayload, DNSCheckTaskResult
 from .nmap import Nmap3CheckTaskPayload, Nmap3CheckTaskResult
@@ -9,7 +9,7 @@ from .geoip import GeoIPCheckTaskPayload, GeoIPCheckTaskResult
 from .tcp_and_udp import TCPUDPCheckTaskPayload, TCPUDPCheckTaskResult
 
 
-type AnyCheckTaskPayload = Annotated[
+type AnyCheckTaskPayloadType = Annotated[
     (
         DNSCheckTaskPayload
         | Nmap3CheckTaskPayload
@@ -19,7 +19,9 @@ type AnyCheckTaskPayload = Annotated[
     ),
     Discriminator("type")
 ]
-type AnyCheckTaskResult = Annotated[
+AnyCheckTaskPayload = TypeAdapter(AnyCheckTaskPayloadType)
+
+type AnyCheckTaskResultType = Annotated[
     (
         DNSCheckTaskResult
         | Nmap3CheckTaskResult
@@ -29,3 +31,4 @@ type AnyCheckTaskResult = Annotated[
     ),
     Discriminator("type")
 ]
+AnyCheckTaskResult = TypeAdapter(AnyCheckTaskResultType)
