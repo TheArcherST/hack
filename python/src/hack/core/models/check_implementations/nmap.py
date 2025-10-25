@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import nmap3
-from pydantic import IPvAnyAddress
+from pydantic import IPvAnyAddress, HttpUrl
 from typing import Any, Literal
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
@@ -12,7 +12,8 @@ from .type_enum import CheckTaskTypeEnum
 class Nmap3CheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.NMAP] = CheckTaskTypeEnum.NMAP
 
-    ip: IPvAnyAddress
+    ip: IPvAnyAddress | None = None
+    url: HttpUrl | None = None
     ports: str | None = None  # optional (for future use)
 
     async def perform_check(self) -> Nmap3CheckTaskResult:
@@ -22,6 +23,8 @@ class Nmap3CheckTaskPayload(BaseCheckTaskPayload):
         - OS detection
         - Top port scan
         """
+        if self.url is None:
+            self.url = self.ip
         nmap = nmap3.Nmap()
 
         async def run_version_detection() -> dict[str, Any]:

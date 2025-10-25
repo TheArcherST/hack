@@ -2,21 +2,25 @@ from __future__ import annotations
 
 import asyncio
 import geoip2.database
-from pydantic import IPvAnyAddress
+from pydantic import IPvAnyAddress, HttpUrl
 from typing import Any, Literal
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .commands import get_ip
 from .type_enum import CheckTaskTypeEnum
 
 
 class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.GEOIP] = CheckTaskTypeEnum.GEOIP
 
-    ip: IPvAnyAddress
+    ip: IPvAnyAddress | None = None
+    url: HttpUrl | None = None
     db_asn_path: str = "/usr/src/app/GeoLite2-ASN.mmdb"
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 
     async def perform_check(self) -> GeoIPCheckTaskResult:
+        if self.ip is None:
+            ip, _ = get_ip(self.url)
         async def lookup_ip() -> dict[str, Any]:
             try:
                 with geoip2.database.Reader(self.db_asn_path) as asn_reader:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any, Optional, Literal
 
-from pydantic import IPvAnyAddress, Field
+from pydantic import IPvAnyAddress, Field, HttpUrl
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
 from .type_enum import CheckTaskTypeEnum
@@ -11,12 +11,17 @@ from .type_enum import CheckTaskTypeEnum
 
 class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.TCP_AND_UDP] = CheckTaskTypeEnum.TCP_AND_UDP
-    ip: IPvAnyAddress
+    ip: IPvAnyAddress | None = None
+    url: HttpUrl | None = None
+    timeout: int = 10
+    verify_ssl: bool = True
     port: int = Field(..., ge=1, le=65535)
     protocol: str = Field("tcp", pattern="^(tcp|udp)$")
     timeout: int = 5
 
     async def perform_check(self) -> TCPUDPCheckTaskResult:
+        if self.ip is None:
+            self.ip = await self.get_ip(self.url)
         if self.protocol.lower() == "tcp":
             result = await self._check_tcp()
         else:

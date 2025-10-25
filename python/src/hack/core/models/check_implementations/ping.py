@@ -4,7 +4,7 @@ import asyncio
 from typing import Literal
 
 from ping3 import ping
-from pydantic import IPvAnyAddress
+from pydantic import IPvAnyAddress, HttpUrl
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
 from .type_enum import CheckTaskTypeEnum
@@ -14,6 +14,7 @@ class PingCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.PING] = CheckTaskTypeEnum.PING
     host: str
     ip: IPvAnyAddress | None = None
+    url: HttpUrl | None = None
 
     async def perform_check(self) -> PingCheckTaskResult:
         try:
