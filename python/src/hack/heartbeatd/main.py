@@ -39,9 +39,9 @@ async def heartbit(
 ):
     print("Enter heartbit check")
     connector = await agent_service.get_connector(agent_id)
-    async with connector.connect() as conn:
+    async with connector.connect(timeout=3) as conn:
         try:
-            await conn.options("/", timeout=2)
+            await conn.options("/", timeout=3)
             # todo: heartbit endpoint
         except Exception as e:
             print(f"Error while trying to connect to agent {agent_id}: `{e}`")
