@@ -2,7 +2,7 @@ from uuid import UUID
 
 from .base import BaseDTO
 
-from ...core.models.check_implementations.unions import AnyCheckTaskPayload
+from hack.core.models.check_implementations.unions import AnyCheckTaskPayload
 
 
 class CreateCheckDTO(BaseDTO):
