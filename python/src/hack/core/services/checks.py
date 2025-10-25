@@ -27,12 +27,10 @@ class CheckService:
 
     async def create_check(
             self,
-            name: str,
-            json_schema: dict[str, Any],
-            is_private: bool,
-            is_record_intent: Literal[True],
     ) -> Check:
-        assert is_record_intent
+        check = Check(
+
+        )
         stream = Stream(
             name=name,
             json_schema=json_schema,

@@ -14,25 +14,3 @@ class Check(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     payload: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[CreatedAt]
-
-    resource_id: Mapped[int] = mapped_column(ForeignKey("resource.id"))
-
-
-class CheckTask(Base):
-    """ Thing that is scheduled to be executed on agent as a part of check """
-
-    __tablename__ = "check_task"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    payload: Mapped[dict] = mapped_column(JSON)
-    created_at: Mapped[CreatedAt]
-
-
-class CheckTemplate(Base):
-    __tablename__ = "check_template"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    payload: Mapped[dict] = mapped_column(JSON)
-    created_at: Mapped[CreatedAt]
-
-    resource_id: Mapped[int | None] = mapped_column(ForeignKey("resource.id"))
