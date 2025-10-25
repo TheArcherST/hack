@@ -125,7 +125,7 @@ class AgentService:
     ) -> AsyncIterable[int]:
         stmt = (
             select(Agent.id)
-            .where(Agent.status.is_(AgentStatus.UP))
+            .where(Agent.status == AgentStatus.UP)
             .where(Agent.is_suspended.is_(False))
         )
         if limit is not None:
