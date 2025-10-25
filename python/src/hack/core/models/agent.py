@@ -30,5 +30,5 @@ class Agent(Base):
     keypair_id: Mapped[int] = mapped_column(ForeignKey("agent_keypair.id"))
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
 
-    keypair: Mapped[AgentKeypair] = relationship(lazy="joined")
+    keypair: Mapped[AgentKeypair] = relationship(lazy="selectin")
     created_by_user: Mapped[User] = relationship()
