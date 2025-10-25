@@ -12,7 +12,7 @@ class Agent(Base):
     __tablename__ = "agent"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    ip: Mapped[str] = mapped_column(unique=True)
+    ip: Mapped[str] = mapped_column()
     port: Mapped[int] = mapped_column()
     rhost: Mapped[str] = mapped_column()
     rport: Mapped[int] = mapped_column()

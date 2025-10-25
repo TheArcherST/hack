@@ -86,6 +86,7 @@ class AgentService:
         )
         self.orm_session.add(agent)
         await self.orm_session.flush()
+        return agent
 
     async def get_agents_with(self):
         stmt = (

@@ -20,7 +20,7 @@ router = APIRouter(
 
 @router.post(
     "",
-    response_model=CheckDTO,
+    response_model=MyAgentDTO,
     status_code=status.HTTP_201_CREATED,
 )
 @inject
