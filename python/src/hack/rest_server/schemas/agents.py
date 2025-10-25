@@ -1,7 +1,7 @@
 from datetime import datetime
 from ipaddress import IPv4Address
 
-from pydantic import field_serializer, field_validator, computed_field
+from pydantic import computed_field
 
 from hack.core.models.agent import AgentStatus, Agent
 from hack.rest_server.schemas.base import BaseDTO
