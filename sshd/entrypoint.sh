@@ -6,6 +6,8 @@ if [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
   ssh-keygen -t ed25519 -N "" -f /etc/ssh/ssh_host_ed25519_key
 fi
 
+export SSH_USER=appuser
+
 # Setup ~/.ssh
 HOME_DIR=$(eval echo "~$SSH_USER")
 mkdir -p "$HOME_DIR/.ssh"
