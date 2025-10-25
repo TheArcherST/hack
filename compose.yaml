@@ -43,7 +43,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-  heartbeatd-non-synamic-scheduler:
+  heartbeatd-non-dynamic-scheduler:
     build: ./python
     command: taskiq scheduler hack.heartbeatd.main:non_dynamic_scheduler
     restart: unless-stopped
