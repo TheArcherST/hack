@@ -25,15 +25,12 @@ class AgentService:
             self,
             passphrase: str | None = None,
     ) -> AgentKeypair:
-        # 1) Generate in-memory private key
         algorithm = "ssh-ed25519"
         priv = asyncssh.generate_private_key(algorithm)
 
-        # 2) Export keys as strings (no files)
         pub_line = priv.export_public_key(format_name="openssh")
-        pem = priv.export_private_key(passphrase=passphrase)  # OpenSSH new-format PEM
+        pem = priv.export_private_key(passphrase=passphrase)
 
-        # 3) Persist to DB
         rec = AgentKeypair(
             name=None,
             algorithm=algorithm,
@@ -70,14 +67,14 @@ class AgentService:
 
     async def create_agent(
             self,
-            keypair_id: int,
+            keypair: AgentKeypair,
             ip: IPv4Address,
             port: int,
             rhost: str,
             rport: int,
     ):
         agent = Agent(
-            keypair_id=keypair_id,
+            keypair=keypair,
             ip=str(ip),
             port=port,
             rhost=rhost,

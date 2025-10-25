@@ -6,9 +6,6 @@ from fastapi import APIRouter, status
 from hack.core.models import Agent
 from hack.core.services.agent import AgentService
 from hack.core.services.uow_ctl import UoWCtl
-from hack.rest_server.schemas.checks import (
-    CheckDTO,
-)
 from hack.rest_server.schemas.agents import (
     MyAgentDTO, CreateAgentDTO,
 )
@@ -31,7 +28,7 @@ async def create_agent(
 ) -> Agent:
     keypair = await agent_service.issue_keypair()
     agent = await agent_service.create_agent(
-        keypair_id=keypair.id,
+        keypair=keypair,
         ip=payload.ip,
         port=payload.port,
         rhost="agent",
