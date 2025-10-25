@@ -2,7 +2,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, HTTPException
 
 from hack.core.models.check import Check
 from hack.core.services.checks import CheckService
@@ -43,7 +43,13 @@ async def create_check(
 async def get_check(
         streams_service: FromDishka[CheckService],
         check_uid: UUID,
-) -> list[Check]:
-    streams = await streams_service.get_checks()
-    streams = list(streams)
-    return streams
+) -> Check:
+    check = await streams_service.get_check(
+        check_uid=check_uid,
+    )
+    if check is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Check not found",
+        )
+    return check

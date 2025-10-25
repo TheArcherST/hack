@@ -115,6 +115,16 @@ class CheckService:
         await self.orm_session.execute(stmt)
         return None
 
+    async def get_check(
+            self,
+            check_uid: UUID,
+    ) -> Check | None:
+        stmt = (
+            select(Check)
+            .where(Check.uid == check_uid)
+        )
+        return await self.orm_session.scalar(stmt)
+
     async def get_check_tasks_with(
             self,
             check_uid: UUID,
