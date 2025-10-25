@@ -1,13 +1,15 @@
 from ipaddress import IPv4Address
+from typing import Iterable, AsyncIterable
 
 import asyncssh
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from hack.core.agent_connector import AgentConnector
 from hack.core.models import Agent
+from hack.core.models.agent import AgentStatus
 from hack.core.models.agent_keypair import AgentKeypair
 from hack.rest_server.providers import AuthorizedUser
 
@@ -20,6 +22,18 @@ class AgentService:
     ):
         self.orm_session = orm_session
         self.authorized_user = authorized_user
+
+    async def heartbit_mark(
+            self,
+            agent_id: int,
+            status: AgentStatus,
+    ) -> None:
+        stmt = (
+            update(Agent)
+            .where(Agent.id == agent_id)
+            .values({Agent.status: status})
+        )
+        await self.orm_session.execute(stmt)
 
     async def issue_keypair(
             self,
@@ -103,10 +117,14 @@ class AgentService:
         await self.orm_session.flush()
         return agent
 
+    async def stream_ids(self, options: tuple = ()) -> AsyncIterable[int]:
+        stmt = (select(Agent.id).options(*options))
+        return await self.orm_session.stream_scalars(stmt)
+
     async def get_agents_with(
             self,
             id_: int | None = None,
-    ):
+    ) -> Iterable[Agent]:
         stmt = (
             select(Agent)
         )

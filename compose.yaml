@@ -41,24 +41,34 @@ services:
       - ${COMPOSE__REST_SERVER__HOST}:${COMPOSE__REST_SERVER__PORT}:80
     env_file: ./python/.env
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+  heartbitd:
+    build: ./python
+    command:  taskiq scheduler hack.heartbeatd.main:scheduler
+    restart: unless-stopped
+    env_file: ./python/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   tasksd:
     build: ./python
     command: run-tasksd
     restart: unless-stopped
     env_file: ./python/.env
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
   bindingd:
     build: ./python
     command: run-bindingd
     restart: unless-stopped
     env_file: ./python/.env
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
   tool-alembic:
     profiles:
       - tools
@@ -78,8 +88,6 @@ services:
     build: ./python
     entrypoint: pytest
     depends_on:
-      redis:
-        condition: service_healthy
       postgres:
         condition: service_healthy
 
