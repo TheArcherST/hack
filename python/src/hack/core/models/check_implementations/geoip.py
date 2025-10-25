@@ -45,7 +45,7 @@ class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
         if "error" in data:
             return GeoIPCheckTaskResult(error=data["error"])
 
-        return GeoIPCheckTaskResult(**data)
+        return GeoIPCheckTaskResult.model_validate(data)
 
 
 class GeoIPCheckTaskResult(BaseCheckTaskResult):
