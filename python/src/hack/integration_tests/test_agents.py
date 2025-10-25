@@ -12,7 +12,7 @@ def test_streams(
     req.json = {
         "name": "Hello world",
         "port": 52141,
-        "ip": "147.45.183.24",
+        "ip": "127.0.0.1",
     }
     r = client.prepsend(req)
     assert r.status_code == 401
