@@ -1,3 +1,4 @@
+import json
 from collections.abc import Iterable
 from uuid import UUID
 
@@ -41,7 +42,7 @@ class CheckService:
             payload: BaseCheckTaskPayload,
     ) -> Check:
         check = Check(
-            payload=payload.model_dump(),
+            payload=json.loads(payload.model_dump_json()),
         )
         self.orm_session.add(check)
         await self.orm_session.flush()
