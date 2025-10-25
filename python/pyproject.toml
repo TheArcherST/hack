@@ -1,7 +1,7 @@
 [project]
 name = "hack"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.12, <4.0"
 dependencies = [
     "dishka",
     "sqlalchemy",
@@ -18,6 +18,10 @@ dependencies = [
     "authx",
     "argon2-cffi",
     "jsonschema (>=4.25.0,<5.0.0)",
+    "ping3 (>=5.1.5,<6.0.0)",
+    "python3-nmap (>=1.9.1,<2.0.0)",
+    "pydig (>=0.4.0,<0.5.0)",
+    "geoip2 (>=5.1.0,<6.0.0)",
 ]
 
 [build-system]
