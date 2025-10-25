@@ -41,12 +41,12 @@ class MyAgentDTO(BaseDTO):
         return """\
 services:
   agent:
-    build: https://git@git.sourcecraft.dev/lvalue/hack-backend.git#main:python
+    build: https://github.com/TheArcherST/hack.git#main:python
     command: run-agent-rest-server
     container_name: lvalue-agent
     restart: unless-stopped
   sshd:
-    build: https://git@git.sourcecraft.dev/lvalue/hack-backend.git#main:sshd
+    build: https://github.com/TheArcherST/hack.git#main:sshd
     container_name: lvalue-sshd
     environment:
       PUBLIC_KEY: "{public_key}"
