@@ -4,7 +4,7 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /usr/src/app
 
 RUN apt-get update
-RUN apt-get install -y netcat-traditional nmap cron
+RUN apt-get install -y netcat-traditional nmap cron dnsutils
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
