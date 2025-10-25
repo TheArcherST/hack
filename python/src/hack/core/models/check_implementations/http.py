@@ -53,6 +53,8 @@ class HTTPCheckTaskPayload(BaseCheckTaskPayload):
 
 
 class HTTPCheckTaskResult(BaseCheckTaskResult):
+    type: Literal[CheckTaskTypeEnum.HTTP] = CheckTaskTypeEnum.HTTP
+
     status_code: int | None = None
     reason: str | None = None
     headers: dict[str, Any] | None = None
