@@ -21,8 +21,8 @@ providers = (
     NoAuthorizedUser(),
 )
 
-broker = RedisStreamBroker("redis://localhost:6379")
-schedule_source = RedisScheduleSource("redis://localhost:6379")
+broker = RedisStreamBroker("redis://redis:6379")
+schedule_source = RedisScheduleSource("redis://redis:6379")
 scheduler = TaskiqScheduler(
     broker=broker,
     sources=[LabelScheduleSource(broker)],
