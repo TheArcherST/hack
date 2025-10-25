@@ -7,6 +7,7 @@ from .nmap import Nmap3CheckTaskPayload, Nmap3CheckTaskResult
 from .http import HTTPCheckTaskPayload, HTTPCheckTaskResult
 from .geoip import GeoIPCheckTaskPayload, GeoIPCheckTaskResult
 from .tcp_and_udp import TCPUDPCheckTaskPayload, TCPUDPCheckTaskResult
+from .traceroute import TracerouteCheckTaskPayload, TracerouteCheckTaskResult
 
 
 type AnyCheckTaskPayloadType = Annotated[
@@ -16,6 +17,7 @@ type AnyCheckTaskPayloadType = Annotated[
         | HTTPCheckTaskPayload
         | GeoIPCheckTaskPayload
         | TCPUDPCheckTaskPayload
+        | TracerouteCheckTaskPayload
     ),
     Discriminator("type")
 ]
@@ -28,6 +30,7 @@ type AnyCheckTaskResultType = Annotated[
         | HTTPCheckTaskResult
         | GeoIPCheckTaskResult
         | TCPUDPCheckTaskResult
+        | TracerouteCheckTaskResult
     ),
     Discriminator("type")
 ]

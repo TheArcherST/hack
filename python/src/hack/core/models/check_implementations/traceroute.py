@@ -1,22 +1,24 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Optional
+from typing import Any, Optional, Literal
 
 import geoip2.database
 from pydantic import IPvAnyAddress, Field
 from scapy.all import sr1, IP, ICMP
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .type_enum import CheckTaskTypeEnum
 
 
-class ICMPCheckTaskPayload(BaseCheckTaskPayload):
+class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
+    type: Literal[CheckTaskTypeEnum.TRACEROUTE] = CheckTaskTypeEnum.TRACEROUTE
     ip: IPvAnyAddress
     max_ttl: int = Field(30, ge=1, le=255)
     timeout: int = 2
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 
-    async def perform_check(self) -> ICMPCheckTaskResult:
+    async def perform_check(self) -> TracerouteCheckTaskResult:
         reader = geoip2.database.Reader(self.db_path)
         def run_trace() -> dict[str, Any]:
             hops: list[dict[str, Any]] = []
@@ -48,12 +50,13 @@ class ICMPCheckTaskPayload(BaseCheckTaskPayload):
         data = await asyncio.to_thread(run_trace)
 
         if "error" in data:
-            return ICMPCheckTaskResult(error=data["error"])
+            return TracerouteCheckTaskResult(error=data["error"])
 
-        return ICMPCheckTaskResult(**data)
+        return TracerouteCheckTaskResult(**data)
 
 
-class ICMPCheckTaskResult(BaseCheckTaskResult):
+class TracerouteCheckTaskResult(BaseCheckTaskResult):
+    type: Literal[CheckTaskTypeEnum.TRACEROUTE] = CheckTaskTypeEnum.TRACEROUTE
     target: str | None = None
     hops: list[dict[tuple[str, str], Any]] | None = None
     error: Optional[str] = None

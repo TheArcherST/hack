@@ -8,3 +8,4 @@ class CheckTaskTypeEnum(StrEnum):
     HTTP = "http"
     NMAP = "nmap"
     TCP_AND_UDP = "tcp_and_udp"
+    TRACEROUTE = "traceroute"
