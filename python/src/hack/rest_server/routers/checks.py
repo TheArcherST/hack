@@ -31,14 +31,8 @@ async def create_check(
     check = await check_service.create_check(
         payload=payload.payload,
     )
-    stream = await streams_service.create_check(
-        name=payload.name,
-        json_schema=payload.json_schema,
-        is_private=payload.is_private,
-        is_record_intent=True,
-    )
     await uow_ctl.commit()
-    return stream
+    return check
 
 
 @router.get(

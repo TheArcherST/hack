@@ -22,10 +22,8 @@ class CheckService:
     def __init__(
             self,
             orm_session: AsyncSession,
-            authorized_user: AuthorizedUser,
     ):
         self.orm_session = orm_session
-        self.authorized_user = authorized_user
 
     async def create_check(
             self,
