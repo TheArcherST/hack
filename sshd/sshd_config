@@ -9,4 +9,3 @@ GatewayPorts no
 X11Forwarding no
 AllowAgentForwarding no
 AllowStreamLocalForwarding no
-AllowTcpForwarding yes
