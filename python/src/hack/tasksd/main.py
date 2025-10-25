@@ -47,16 +47,18 @@ async def async_main():
                         response = await conn.post("/check", json=json_data)
                 except TimeoutError:
                     print(f"Timeout error for agent {check_task.bound_to_agent_id}")
-                    await check_service.notify_check_task_failed()
+                    await check_service.notify_check_task_failed(check_task.uid)
                     await uow_ctl.commit()
                     continue
                 except Exception as e:
                     print(f"Some unknown error for agent {check_task.bound_to_agent_id}: `{e}`")
+                    await check_service.notify_check_task_failed(check_task.uid)
                     await uow_ctl.commit()
                     continue
 
                 if not response.is_success:
                     print(f"Some problem on agent's {check_task.bound_to_agent_id} side: code `{response.status_code}`")
+                    await check_service.notify_check_task_failed(check_task.uid)
                     await uow_ctl.commit()
                     continue
 
