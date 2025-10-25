@@ -5,7 +5,7 @@ from abc import abstractmethod
 
 from pydantic import BaseModel
 
-from .types import CheckTaskTypeEnum
+from .type_enum import CheckTaskTypeEnum
 
 
 class BaseCheckTaskPayload(BaseModel, abc.ABC):

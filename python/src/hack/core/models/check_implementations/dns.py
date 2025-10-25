@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import IPvAnyAddress
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
-from .types import CheckTaskTypeEnum
+from .type_enum import CheckTaskTypeEnum
 
 
 class DNSCheckTaskPayload(BaseCheckTaskPayload):
