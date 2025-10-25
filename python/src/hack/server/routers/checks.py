@@ -1,8 +1,8 @@
-from collections.abc import Iterable
+from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from hack.core.models.check import Check
 from hack.core.services.checks import CheckService
@@ -42,13 +42,14 @@ async def create_check(
 
 
 @router.get(
-    "",
-    response_model=list[StreamDTO],
+    "/{check_uid}",
+    response_model=CheckDTO,
 )
 @inject
-async def get_streams(
+async def get_check(
         streams_service: FromDishka[CheckService],
+        check_uid: UUID,
 ) -> list[Check]:
-    streams = await streams_service.get_streams()
+    streams = await streams_service.get_checks()
     streams = list(streams)
     return streams
