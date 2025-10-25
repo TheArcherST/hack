@@ -18,11 +18,12 @@ class Agent(Base):
     __tablename__ = "agent"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
     ip: Mapped[str] = mapped_column()
     port: Mapped[int] = mapped_column()
     rhost: Mapped[str] = mapped_column()
     rport: Mapped[int] = mapped_column()
-    suspended_since: Mapped[datetime | None] = mapped_column()
+    is_suspended: Mapped[bool] = mapped_column(default=False)
     status: Mapped[AgentStatus] = mapped_column(default=AgentStatus.DOWN)
     created_at: Mapped[CreatedAt]
 
@@ -31,7 +32,3 @@ class Agent(Base):
 
     keypair: Mapped[AgentKeypair] = relationship(lazy="joined")
     created_by_user: Mapped[User] = relationship()
-
-    @property
-    def public_key(self):
-        return self.keypair.public_key_openssh

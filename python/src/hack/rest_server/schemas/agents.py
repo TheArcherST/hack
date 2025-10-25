@@ -8,8 +8,16 @@ from hack.rest_server.schemas.base import BaseDTO
 
 
 class CreateAgentDTO(BaseDTO):
+    name: str
     ip: IPv4Address
     port: int
+
+
+class UpdateAgentDTO(BaseDTO):
+    name: str
+    ip: IPv4Address
+    port: int
+    is_suspended: bool
 
 
 class MyKeypairDTO(BaseDTO):
@@ -17,6 +25,7 @@ class MyKeypairDTO(BaseDTO):
 
 
 class MyAgentDTO(BaseDTO):
+    id: int
     ip: IPv4Address
     port: int
     status: AgentStatus

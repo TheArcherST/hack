@@ -10,6 +10,7 @@ def test_streams(
 ):
     req = api_templates.make_create_agent()
     req.json = {
+        "name": "Hello world",
         "port": 52141,
         "ip": "127.0.0.1",
     }
@@ -18,3 +19,11 @@ def test_streams(
     r = authed_client.prepsend(req)
     assert r.status_code == 201
     assert "52141" in str(r.json())
+
+    req = api_templates.make_get_agents()
+    r = authed_client.prepsend(req)
+    assert r.status_code == 200
+
+    req = api_templates.make_delete_agent()
+    req.path_params = {"agent_id": r.json()[0]["id"]}
+    assert r.status_code == 200
