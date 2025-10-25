@@ -9,5 +9,5 @@ class AgentCreateCredentialsDTO(BaseDTO):
 
 
 class CreateAgentDTO(BaseDTO):
+    public_key: str
     ip: IPv4Address
-    keypair_id: int

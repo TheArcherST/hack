@@ -42,6 +42,16 @@ class AgentService:
         await self.orm_session.refresh(rec)
         return rec
 
+    async def get_keypair_with(
+            self,
+            public_key: str | None = None,
+    ) -> AgentKeypair | None:
+        stmt = (
+            select(AgentKeypair)
+            .where(AgentKeypair.public_key_openssh == public_key)
+        )
+        return await self.orm_session.scalar(stmt)
+
     async def get_connector(self, agent_id: int) -> AgentConnector:
         agent = await self.orm_session.get(
             Agent, agent_id,

@@ -70,8 +70,11 @@ async def create_agent(
         uow_ctl: FromDishka[UoWCtl],
         payload: CreateAgentDTO,
 ) -> Agent:
+    keypair = await agent_service.get_keypair_with(
+        public_key=payload.public_key,
+    )
     agent = await agent_service.create_agent(
-        keypair_id=payload.keypair_id,
+        keypair_id=keypair.id,
         ssh_ip=payload.ip,
         ssh_port=payload.port,
         rhost="agent",
