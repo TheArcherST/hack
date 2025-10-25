@@ -56,7 +56,7 @@ async def heartbit(
         await uow_ctl.commit()
 
 
-@broker.task(schedule=CronSpec(minutes=1))
+@broker.task(schedule=CronSpec("*/1 * * * *"))
 @inject(patch_module=True)
 async def heartbeat_schedule_loop(
         agent_service: FromDishka[AgentService],
