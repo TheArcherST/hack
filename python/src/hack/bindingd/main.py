@@ -36,6 +36,7 @@ async def async_main():
                 check_service = await request_c.get(CheckService)
                 agent_service = await request_c.get(AgentService)
                 check = await check_service.acquire_next_check()
+                print(f"Acquired check: {check}")
                 if check is None:
                     continue
                 async for i in await agent_service.stream_up_ids(limit=10, random_order=True):
