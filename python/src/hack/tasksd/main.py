@@ -43,7 +43,9 @@ async def async_main():
                 uow_ctl = await request_c.get(UoWCtl)
                 try:
                     async with connector.connect() as conn:
-                        response = await conn.post("/check", json=check_task.payload)
+                        json_data = {"payload": check_task.payload}
+                        print(f"Call with {check_task.payload}")
+                        response = await conn.post("/check", json=json_data)
                 except TimeoutError:
                     print(f"Timeout error for agent {check_task.bound_to_agent_id}")
                     await check_service.notify_check_task_failed()
