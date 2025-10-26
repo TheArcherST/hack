@@ -38,6 +38,7 @@ async def async_main():
                 check = await check_service.acquire_next_check()
                 print(f"Acquired check: {check}")
                 if check is None:
+                    await asyncio.sleep(1)
                     continue
                 async for i in await agent_service.stream_up_ids(limit=10, random_order=True):
                     await check_service.create_check_task(
