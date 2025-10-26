@@ -71,7 +71,7 @@ async def async_main():
                 await check_service.store_check_task_result(check_task.uid, result)
                 await uow_ctl.commit()
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.05)
 
 
 def main():
