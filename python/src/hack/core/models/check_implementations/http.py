@@ -14,7 +14,7 @@ class HTTPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.HTTP] = CheckTaskTypeEnum.HTTP
     url: str
     timeout: int = 10
-    verify_ssl: bool = True
+    verify_ssl: bool = False
     follow_redirects: bool = True
     method: str = "GET"
     headers: dict[str, str] | None = None
@@ -32,7 +32,7 @@ class HTTPCheckTaskPayload(BaseCheckTaskPayload):
                         headers=self.headers,
                         data=self.body,
                         allow_redirects=self.follow_redirects,
-                        ssl=self.verify_ssl,
+                        # ssl=self.verify_ssl,
                     ) as response:
                         content = await response.text(errors="ignore")
                         return {
