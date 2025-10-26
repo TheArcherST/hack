@@ -28,7 +28,7 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
             except DNSError:
                 result = []
 
-            results = [i.host for i in result]
+            results = [getattr(i, "host", str(i)) for i in result]
             return results
 
         a_task = query(domain, "A")
