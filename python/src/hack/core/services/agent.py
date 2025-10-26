@@ -122,12 +122,18 @@ class AgentService:
             self,
             limit: int | None = None,
             random_order: bool = False,
+            is_up: bool = True,
     ) -> AsyncIterable[int]:
         stmt = (
             select(Agent.id)
-            .where(Agent.status == AgentStatus.UP)
-            .where(Agent.is_suspended.is_(False))
+
         )
+        if is_up:
+            stmt = (
+                stmt
+                .where(Agent.status == AgentStatus.UP)
+                .where(Agent.is_suspended.is_(False))
+            )
         if limit is not None:
             stmt = stmt.limit(limit)
         if random_order:
