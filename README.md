@@ -20,6 +20,11 @@ Tests:
     <li>NMAP</li>
 </ul>
 
+How to deploy (using Makefile shortcuts for docker commands):
+1. Ensure you installed docker and make on your host
+2. Fill all .env files with provided .env.example templates.
+3. `make up`
+
 How to connect agent:
 1. Ensure you installed docker on your host
 2. Create new directory for the deployment
