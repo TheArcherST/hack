@@ -24,9 +24,12 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
 
         async def query(domain_, url_):
             try:
-                return await resolver.query(domain_, url_)
+                result = await resolver.query(domain_, url_)
             except DNSError:
-                return []
+                result = []
+
+            results = [i.host for i in result]
+            return results
 
         a_task = query(domain, "A")
         aaaa_task = query(domain, "AAAA")
