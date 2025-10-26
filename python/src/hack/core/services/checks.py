@@ -135,6 +135,12 @@ class CheckService:
         )
         return await self.orm_session.scalars(stmt)
 
+    async def get_check_task(
+            self,
+            uid: UUID,
+    ) -> CheckTask | None:
+        return await self.orm_session.get(CheckTask, uid)
+
     async def store_check_task_result(
             self,
             check_task_uid: UUID,

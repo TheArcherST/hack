@@ -73,16 +73,16 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-  tasksd:
+  tasksd-worker:
     build: ./python
-    command: run-tasksd
+    command: taskiq worker hack.tasksd.tasks:broker
     restart: unless-stopped
     env_file: ./python/.env
     depends_on:
       postgres:
         condition: service_healthy
     deploy:
-      replicas: 5
+      replicas: 2
   bindingd:
     build: ./python
     command: run-bindingd
