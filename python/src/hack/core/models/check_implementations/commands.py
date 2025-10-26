@@ -1,25 +1,44 @@
-import asyncio
-from ipaddress import IPv4Address, IPv6Address
-
-import pydig
-from pydantic import HttpUrl
+import validators
+from pydantic import AnyUrl, BaseModel, IPvAnyAddress, TypeAdapter
+from aiodns import DNSResolver
 
 
-async def get_ip(url: HttpUrl) -> tuple[list[IPv4Address], list[IPv6Address]]:
+class ResolvedEndpoint(BaseModel):
+    domain: str | None
+    ipv4: list[IPvAnyAddress]
+    ipv6: list[IPvAnyAddress]
+
+    @property
+    def some_ip(self) -> IPvAnyAddress | None:
+        if self.ipv4:
+            return self.ipv4[0]
+        elif self.ipv6:
+            return self.ipv6[0]
+        else:
+            return None
 
 
-    async def query(record_type: str) -> list[str]:
-        # Run pydig.query in a thread to avoid blocking
-        return await asyncio.to_thread(pydig.query, url, record_type)
+async def resolve_endpoint(endpoint: AnyUrl) -> ResolvedEndpoint:
+    ipv4 = []
+    ipv6 = []
+    domain = None
 
-    # Run all lookups concurrently
-    a_task = asyncio.create_task(query("A"))
-    aaaa_task = asyncio.create_task(query("AAAA"))
+    if validators.ipv4(endpoint.host):
+        ipv4.append(endpoint.host)
+    elif validators.ipv6(endpoint.host):
+        ipv6.append(endpoint.host)
+    else:
+        domain = endpoint.host
+        resolver = DNSResolver()
+        ipv4.extend(
+            await resolver.query(domain, "A")
+        )
+        ipv6.extend(
+            await resolver.query(domain, "AAAA")
+        )
 
-    # Wait for all tasks
-    a_records, aaaa_records = await asyncio.gather(
-        a_task, aaaa_task
+    return ResolvedEndpoint(
+        domain=domain,
+        ipv4=ipv4,
+        ipv6=ipv6,
     )
-
-    return map(IPv4Address, a_records), map(IPv6Address, aaaa_records)
-

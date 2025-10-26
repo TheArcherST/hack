@@ -4,31 +4,29 @@ import asyncio
 from typing import Any, Optional, Literal
 
 import geoip2.database
-from pydantic import IPvAnyAddress, Field, HttpUrl, AnyUrl
+from pydantic import Field, AnyUrl
 from scapy.all import sr1, IP, ICMP
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
-from .commands import get_ip
+from .commands import resolve_endpoint
 from .type_enum import CheckTaskTypeEnum
 
 
 class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.TRACEROUTE] = CheckTaskTypeEnum.TRACEROUTE
-    ip: IPvAnyAddress | None = None
-    url: AnyUrl | None = None
+    url: AnyUrl
     max_ttl: int = Field(30, ge=1, le=255)
     timeout: int = 2
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 
     async def perform_check(self) -> TracerouteCheckTaskResult:
-        if self.ip is None:
-            self.ip, _ = await get_ip(self.url)
+        resolved_endpoint = await resolve_endpoint(self.url)
         reader = geoip2.database.Reader(self.db_path)
         def run_trace() -> dict[str, Any]:
             hops: list[dict[str, Any]] = []
 
             for ttl in range(1, self.max_ttl + 1):
-                pkt = IP(dst=str(self.ip), ttl=ttl) / ICMP()
+                pkt = IP(dst=str(resolved_endpoint.some_ip), ttl=ttl) / ICMP()
                 reply = sr1(pkt, verbose=0, timeout=self.timeout)
 
                 hop_info: dict[str, Any] = {"ttl": ttl}
@@ -40,7 +38,7 @@ class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
                     hop_info["status"] = "ok"
                     hops.append(hop_info)
 
-                    if reply.src == str(self.ip):
+                    if reply.src == str(resolved_endpoint.some_ip):
                         break
 
                 hops.append((hop_info, reader.city(reply.src).country))
@@ -49,7 +47,7 @@ class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
             if not hops:
                 return {"error": "No ICMP response received"}
 
-            return {"hops": hops, "target": str(self.ip)}
+            return {"hops": hops, "target": str(resolved_endpoint.some_ip)}
 
         data = await asyncio.to_thread(run_trace)
 
