@@ -95,7 +95,7 @@ class CheckService:
         stmt = (
             select(CheckTask)
             .where(CheckTask.acked_at.is_(None))
-            .where(CheckTask.failed_count <= 5)  # todo: rebinding
+            .where(CheckTask.failed_count <= 2)  # todo: rebinding
             .order_by(CheckTask.created_at.asc())
             .limit(1)
             .with_for_update(skip_locked=True)
