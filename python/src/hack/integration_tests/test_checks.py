@@ -47,3 +47,14 @@ def test_streams(
     }
     r = client.prepsend(req)
     assert r.status_code == 201
+
+    req = api_templates.make_create_check()
+    req.json = {
+        "payload": {
+            "type": "tcp_or_udp",
+            "url": "gmail.com",
+            "port": 80,
+        }
+    }
+    r = client.prepsend(req)
+    assert r.status_code == 201
