@@ -6,13 +6,13 @@ from typing import Any, Optional, Literal
 from pydantic import IPvAnyAddress, Field, HttpUrl
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .commands import resolve_endpoint
 from .type_enum import CheckTaskTypeEnum
 
 
 class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.TCP_AND_UDP] = CheckTaskTypeEnum.TCP_AND_UDP
-    ip: IPvAnyAddress | None = None
-    url: HttpUrl | None = None
+    url: str
     timeout: int = 10
     verify_ssl: bool = True
     port: int = Field(..., ge=1, le=65535)
@@ -20,8 +20,6 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
     timeout: int = 5
 
     async def perform_check(self) -> TCPUDPCheckTaskResult:
-        if self.ip is None:
-            self.ip = await self.get_ip(self.url)
         if self.protocol.lower() == "tcp":
             result = await self._check_tcp()
         else:
@@ -34,10 +32,11 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
 
     async def _check_tcp(self) -> dict[str, Any]:
         async def run_check():
+            self.resolved_endpoint = await resolve_endpoint(self.url)
             start = asyncio.get_event_loop().time()
             try:
                 reader, writer = await asyncio.wait_for(
-                    asyncio.open_connection(str(self.ip), self.port),
+                    asyncio.open_connection(str(self.resolved_endpoint.ip), self.port),
                     timeout=self.timeout,
                 )
                 writer.close()
@@ -48,7 +47,7 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
                     "latency_ms": round(elapsed, 2),
                     "protocol": "tcp",
                     "port": self.port,
-                    "ip": str(self.ip),
+                    "ip": str(self.resolved_endpoint.ip),
                 }
             except Exception as e:
                 return {"error": str(e)}
@@ -64,7 +63,7 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
 
                 transport, _ = await loop.create_datagram_endpoint(
                     asyncio.DatagramProtocol,
-                    remote_addr=(str(self.ip), self.port),
+                    remote_addr=(str(self.resolved_endpoint.ip), self.port),
                 )
 
                 transport.sendto(b"ping")
@@ -83,7 +82,7 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
                     "latency_ms": round(elapsed, 2),
                     "protocol": "udp",
                     "port": self.port,
-                    "ip": str(self.ip),
+                    "ip": str(self.resolved_endpoint.ip),
                 }
             except Exception as e:
                 return {"error": str(e)}
