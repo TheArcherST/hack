@@ -15,9 +15,9 @@ from hack.core.models.check_implementations.type_enum import CheckTaskTypeEnum
 
 
 class TracerouteHop(BaseModel):
-    ttl: int
+    ttl: int | None = None
     ip: str | None = None
-    rtt_ms: Optional[float] = None
+    rtt_ms: float | None = None
     city: str | None = None
 
 
@@ -68,12 +68,8 @@ class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
                         city=reader.city(hop.ip).city.name
                     except AddressNotFoundError:
                         city=None
-                hops.append(dict(
-                    ttl=hop.ttl,
-                    ip=hop.ip,
-                    rtt_ms=hop.rtt_ms,
-                    city=city
-                ))
+                hop = hop.model_copy(update={"city": city})
+                hops.append(hop)
                 if hop.ip == dest_addr:
                     break
 

@@ -1,6 +1,7 @@
 import asyncio
 
 import validators
+from aiodns.error import DNSError
 from pydantic import BaseModel, IPvAnyAddress
 from aiodns import DNSResolver
 from urllib.parse import urlparse
@@ -41,14 +42,20 @@ async def resolve_endpoint(endpoint: str) -> ResolvedEndpoint:
     else:
         domain = uri.netloc
         resolver = DNSResolver()
-        ipv4.extend([
-            i.host for i in
-            await resolver.query(domain, "A")
-        ])
-        ipv6.extend([
-            i.host for i in
-            await resolver.query(domain, "AAAA")
-        ])
+        try:
+            ipv4.extend([
+                i.host for i in
+                await resolver.query(domain, "A")
+            ])
+        except DNSError:
+            pass
+        try:
+            ipv6.extend([
+                i.host for i in
+                await resolver.query(domain, "AAAA")
+            ])
+        except DNSError:
+            pass
 
     return ResolvedEndpoint.model_validate(dict(
         domain=domain,

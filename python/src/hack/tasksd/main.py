@@ -1,4 +1,5 @@
 import asyncio
+from traceback import print_tb
 
 from dishka import make_async_container, Scope, Provider, provide
 
@@ -52,6 +53,7 @@ async def async_main():
                     continue
                 except Exception as e:
                     print(f"Some unknown error for agent {check_task.bound_to_agent_id}: `{e}`")
+                    print_tb(e.__traceback__)
                     await check_service.notify_check_task_failed(check_task.uid)
                     await uow_ctl.commit()
                     continue
