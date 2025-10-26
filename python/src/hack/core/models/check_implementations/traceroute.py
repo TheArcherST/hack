@@ -1,64 +1,90 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Optional, Literal
+import socket
+import time
+from typing import Literal, Optional, List
 
 import geoip2.database
-from pydantic import Field, AnyUrl
-from scapy.all import sr1, IP, ICMP
+from geoip2.errors import AddressNotFoundError
+from pydantic import BaseModel
 
-from .base import BaseCheckTaskPayload, BaseCheckTaskResult
-from .commands import resolve_endpoint
-from .type_enum import CheckTaskTypeEnum
+from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
+from hack.core.models.check_implementations.type_enum import CheckTaskTypeEnum
+
+
+class TracerouteHop(BaseModel):
+    ttl: int
+    ip: str | None = None
+    rtt_ms: Optional[float] = None
+    city: str | None = None
 
 
 class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.TRACEROUTE] = CheckTaskTypeEnum.TRACEROUTE
     url: str
-    max_ttl: int = Field(30, ge=1, le=255)
+    max_hops: int = 30
     timeout: int = 2
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 
     async def perform_check(self) -> TracerouteCheckTaskResult:
-        resolved_endpoint = await resolve_endpoint(self.url)
-        reader = geoip2.database.Reader(self.db_path)
-        def run_trace() -> dict[str, Any]:
-            hops: list[dict[str, Any]] = []
+        """Perform an asynchronous traceroute."""
+        dest_addr = socket.gethostbyname(self.url)
+        hops: List[TracerouteHop] = []
 
-            for ttl in range(1, self.max_ttl + 1):
-                pkt = IP(dst=str(resolved_endpoint.some_ip), ttl=ttl) / ICMP()
-                reply = sr1(pkt, verbose=0, timeout=self.timeout)
+        async def trace_hop(ttl: int) -> TracerouteHop:
+            recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
+            send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+            recv_sock.settimeout(self.timeout)
+            send_sock.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
 
-                hop_info: dict[str, Any] = {"ttl": ttl}
-                if reply is None:
-                    hop_info["host"] = None
-                    hop_info["status"] = "timeout"
-                else:
-                    hop_info["host"] = reply.src
-                    hop_info["status"] = "ok"
-                    hops.append(hop_info)
+            recv_sock.bind(("", 33434))
+            send_sock.sendto(b"", (self.url, 33434))
+            start_time = time.time()
 
-                    if reply.src == str(resolved_endpoint.some_ip):
-                        break
+            ip = None
+            rtt_ms: Optional[float] = None
 
-                hops.append((hop_info, reader.city(reply.src).country))
+            try:
+                _, curr_addr = recv_sock.recvfrom(512)
+                elapsed = (time.time() - start_time) * 1000
+                ip = curr_addr[0]
+                rtt_ms = round(elapsed, 2)
+            except socket.timeout:
+                pass
+            finally:
+                recv_sock.close()
+                send_sock.close()
 
-            # If no hops were recorded, likely unreachable
-            if not hops:
-                return {"error": "No ICMP response received"}
+            return TracerouteHop(ttl=ttl, ip=ip, rtt_ms=rtt_ms)
 
-            return {"hops": hops, "target": str(resolved_endpoint.some_ip)}
+        with geoip2.database.Reader(self.db_path) as reader:
+            for ttl in range(1, self.max_hops + 1):
+                hop = await trace_hop(ttl)
+                if hop.ip:
+                    try:
+                        city=reader.city(hop.ip).city.name
+                    except AddressNotFoundError:
+                        city=None
+                hops.append(dict(
+                    ttl=hop.ttl,
+                    ip=hop.ip,
+                    rtt_ms=hop.rtt_ms,
+                    city=city
+                ))
+                if hop.ip == dest_addr:
+                    break
 
-        data = await asyncio.to_thread(run_trace)
-
-        if "error" in data:
-            return TracerouteCheckTaskResult(error=data["error"])
-
-        return TracerouteCheckTaskResult(**data)
+        return TracerouteCheckTaskResult(
+            destination=self.url,
+            destination_ip=dest_addr,
+            hops=hops,
+        )
 
 
 class TracerouteCheckTaskResult(BaseCheckTaskResult):
     type: Literal[CheckTaskTypeEnum.TRACEROUTE] = CheckTaskTypeEnum.TRACEROUTE
-    target: str | None = None
-    hops: list[dict[tuple[str, str], Any]] | None = None
-    error: Optional[str] = None
+
+    destination: str
+    destination_ip: str
+    hops: List[TracerouteHop]
