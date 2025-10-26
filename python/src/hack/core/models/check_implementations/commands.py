@@ -55,13 +55,3 @@ async def resolve_endpoint(endpoint: str) -> ResolvedEndpoint:
         ipv4=ipv4,
         ipv6=ipv6,
     ))
-
-
-async def main():
-    res = await resolve_endpoint("google.com")
-    breakpoint()
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
-
