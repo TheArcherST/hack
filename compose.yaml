@@ -94,7 +94,7 @@ services:
       - tools
     build: ./python
     entrypoint: /usr/src/app/alembic-entrypoint.sh
-    restart: never
+    restart: no
     environment:
       EXTERNAL_UID: ${COMPOSE__UID}
       EXTERNAL_GID: ${COMPOSE__GID}

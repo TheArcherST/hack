@@ -11,10 +11,10 @@ from .type_enum import CheckTaskTypeEnum
 
 class DNSCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.DNS] = CheckTaskTypeEnum.DNS
-    domain: str
+    url: str
 
     async def perform_check(self) -> DNSCheckTaskResult:
-        domain = self.domain
+        domain = self.url
 
         async def query(record_type: str) -> list[str]:
             # Run pydig.query in a thread to avoid blocking
