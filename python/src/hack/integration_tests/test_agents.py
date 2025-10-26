@@ -19,11 +19,12 @@ def test_streams(
     r = authed_client.prepsend(req)
     assert r.status_code == 201
     assert "52141" in str(r.json())
+    agent_id = r.json()["agent_id"]
 
     req = api_templates.make_get_agents()
     r = authed_client.prepsend(req)
     assert r.status_code == 200
 
     req = api_templates.make_delete_agent()
-    req.path_params = {"agent_id": r.json()[0]["id"]}
+    req.path_params = {"agent_id": agent_id}
     assert r.status_code == 200
