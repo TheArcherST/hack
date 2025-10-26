@@ -46,7 +46,7 @@ async def async_main():
                 try:
                     async with connector.connect() as conn:
                         json_data = {"payload": check_task.payload}
-                        response = await conn.post("/check", json=json_data)
+                        response = await conn.post("/check", json=json_data, timeout=40)
                 except TimeoutError:
                     print(f"Timeout error for agent {check_task.bound_to_agent_id}")
                     await check_service.notify_check_task_failed(check_task.uid)
