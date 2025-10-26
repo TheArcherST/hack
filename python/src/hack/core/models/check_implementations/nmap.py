@@ -5,8 +5,8 @@ import nmap3
 from pydantic import IPvAnyAddress, HttpUrl
 from typing import Any, Literal
 
-from .base import BaseCheckTaskPayload, BaseCheckTaskResult
-from .type_enum import CheckTaskTypeEnum
+from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
+from hack.core.models.check_implementations.type_enum import CheckTaskTypeEnum
 
 
 class Nmap3CheckTaskPayload(BaseCheckTaskPayload):
@@ -55,7 +55,7 @@ class Nmap3CheckTaskPayload(BaseCheckTaskPayload):
 class Nmap3CheckTaskResult(BaseCheckTaskResult):
     type: Literal[CheckTaskTypeEnum.NMAP] = CheckTaskTypeEnum.NMAP
 
-    os_detection: list[dict[str, Any]] | None = None
+    os_detection: dict[str, Any] | None = None
     version_detection: dict[str, Any] | None = None
     top_ports: dict[str, Any] | None = None
     error: str | None = None
