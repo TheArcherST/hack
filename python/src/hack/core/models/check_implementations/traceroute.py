@@ -10,6 +10,7 @@ from geoip2.errors import AddressNotFoundError
 from pydantic import BaseModel
 
 from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
+from hack.core.models.check_implementations.commands import resolve_endpoint
 from hack.core.models.check_implementations.type_enum import CheckTaskTypeEnum
 
 
@@ -29,6 +30,7 @@ class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
 
     async def perform_check(self) -> TracerouteCheckTaskResult:
         """Perform an asynchronous traceroute."""
+        self.url = (await resolve_endpoint(self.url)).domain
         dest_addr = socket.gethostbyname(self.url)
         hops: List[TracerouteHop] = []
 

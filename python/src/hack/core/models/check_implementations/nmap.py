@@ -6,6 +6,7 @@ from pydantic import IPvAnyAddress, HttpUrl
 from typing import Any, Literal
 
 from hack.core.models.check_implementations.base import BaseCheckTaskPayload, BaseCheckTaskResult
+from hack.core.models.check_implementations.commands import resolve_endpoint
 from hack.core.models.check_implementations.type_enum import CheckTaskTypeEnum
 
 
@@ -21,6 +22,7 @@ class Nmap3CheckTaskPayload(BaseCheckTaskPayload):
         - OS detection
         - Top port scan
         """
+        self.url = (await resolve_endpoint(self.url)).domain
         nmap = nmap3.Nmap()
 
         async def run_version_detection() -> dict[str, Any]:
