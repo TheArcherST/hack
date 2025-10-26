@@ -1,3 +1,5 @@
+import asyncio
+
 import validators
 from pydantic import BaseModel, IPvAnyAddress
 from aiodns import DNSResolver
@@ -39,15 +41,27 @@ async def resolve_endpoint(endpoint: str) -> ResolvedEndpoint:
     else:
         domain = uri.netloc
         resolver = DNSResolver()
-        ipv4.extend(map(str,
+        ipv4.extend([
+            i.host for i in
             await resolver.query(domain, "A")
-        ))
-        ipv6.extend(map(str,
+        ])
+        ipv6.extend([
+            i.host for i in
             await resolver.query(domain, "AAAA")
-        ))
+        ])
 
     return ResolvedEndpoint.model_validate(dict(
         domain=domain,
         ipv4=ipv4,
         ipv6=ipv6,
     ))
+
+
+async def main():
+    res = await resolve_endpoint("google.com")
+    breakpoint()
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
+
