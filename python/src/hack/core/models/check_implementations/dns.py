@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import Literal
 
-import pydig
+from aiodns import DNSResolver
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
 from .type_enum import CheckTaskTypeEnum
@@ -16,31 +16,29 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
     async def perform_check(self) -> DNSCheckTaskResult:
         domain = self.url
 
-        async def query(record_type: str) -> list[str]:
-            # Run pydig.query in a thread to avoid blocking
-            return await asyncio.to_thread(pydig.query, domain, record_type)
+        resolver = DNSResolver()
 
         # Run all lookups concurrently
-        a_task = asyncio.create_task(query("A"))
-        aaaa_task = asyncio.create_task(query("AAAA"))
-        mx_task = asyncio.create_task(query("MX"))
-        ns_task = asyncio.create_task(query("NS"))
-        txt_task = asyncio.create_task(query("TXT"))
-        cname_task = asyncio.create_task(query("CNAME"))
+        a_task = resolver.query(domain, "A")
+        aaaa_task = resolver.query(domain, "AAAA")
+        mx_task = resolver.query(domain, "MX")
+        ns_task = resolver.query(domain, "NS")
+        txt_task = resolver.query(domain, "TXT")
+        cname_task = resolver.query(domain, "CNAME")
 
         # Wait for all tasks
         a_records, aaaa_records, mx_records, ns_records, txt_records, cname_records = await asyncio.gather(
             a_task, aaaa_task, mx_task, ns_task, txt_task, cname_task
         )
 
-        return DNSCheckTaskResult(
+        return DNSCheckTaskResult.model_validate(dict(
             a_records=a_records,
             aaaa_records=aaaa_records,
             mx_records=mx_records,
             ns_records=ns_records,
             txt_records=txt_records,
             cname_records=cname_records,
-        )
+        ))
 
 
 class DNSCheckTaskResult(BaseCheckTaskResult):
