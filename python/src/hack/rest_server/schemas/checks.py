@@ -1,4 +1,5 @@
 from uuid import UUID
+from pydantic import computed_field
 
 from .base import BaseDTO
 
@@ -17,6 +18,12 @@ class CheckTaskDTO(BaseDTO):
     bound_to_agent: BoundToAgentDTO
     payload: AnyCheckTaskPayloadType
     result: AnyCheckTaskResultType | None
+    failed_count: int = False
+
+    @computed_field
+    @property
+    def is_failed(self):
+        return self.failed_count >= 3
 
 
 class CheckDTO(BaseDTO):
