@@ -11,7 +11,6 @@ from .type_enum import CheckTaskTypeEnum
 
 class DNSCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.DNS] = CheckTaskTypeEnum.DNS
-
     domain: str
 
     async def perform_check(self) -> DNSCheckTaskResult:

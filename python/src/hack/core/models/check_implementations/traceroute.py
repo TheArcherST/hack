@@ -14,7 +14,7 @@ from .type_enum import CheckTaskTypeEnum
 
 class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.TRACEROUTE] = CheckTaskTypeEnum.TRACEROUTE
-    url: AnyUrl
+    url: str
     max_ttl: int = Field(30, ge=1, le=255)
     timeout: int = 2
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"

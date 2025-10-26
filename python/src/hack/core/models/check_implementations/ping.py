@@ -4,23 +4,23 @@ import asyncio
 from typing import Literal
 
 from ping3 import ping
-from pydantic import IPvAnyAddress, HttpUrl
+from pydantic import IPvAnyAddress, HttpUrl, AnyUrl
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .commands import resolve_endpoint
 from .type_enum import CheckTaskTypeEnum
 
 
 class PingCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.PING] = CheckTaskTypeEnum.PING
-    host: str
-    ip: IPvAnyAddress | None = None
-    url: HttpUrl | None = None
+    url: str
     count: int | None = 4
 
     async def perform_check(self) -> PingCheckTaskResult:
         try:
+            resolved_endpoint = await resolve_endpoint(self.url)
             # Offload the blocking ping() call to a thread
-            ping_result = [await asyncio.to_thread(ping, self.host, timeout=10) for i in range(self.count)]
+            ping_result = [await asyncio.to_thread(ping,  str(resolved_endpoint.some_ip), timeout=10) for i in range(self.count)]
             alive_pings = [i for i in ping_result if i]
             ping_average = sum(alive_pings) / len(alive_pings)
             return PingCheckTaskResult(

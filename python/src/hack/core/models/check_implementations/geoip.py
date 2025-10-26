@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import geoip2.database
-from pydantic import AnyUrl, BaseModel
+from pydantic import BaseModel
 from typing import Literal
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
@@ -11,7 +11,7 @@ from .type_enum import CheckTaskTypeEnum
 
 class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.GEOIP] = CheckTaskTypeEnum.GEOIP
-    url: AnyUrl
+    url: str
     db_asn_path: str = "/usr/src/app/GeoLite2-ASN.mmdb"
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 

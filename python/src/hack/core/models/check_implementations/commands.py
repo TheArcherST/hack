@@ -1,6 +1,7 @@
 import validators
-from pydantic import AnyUrl, BaseModel, IPvAnyAddress, TypeAdapter
+from pydantic import BaseModel, IPvAnyAddress
 from aiodns import DNSResolver
+from urllib.parse import urlparse
 
 
 class ResolvedEndpoint(BaseModel):
@@ -18,17 +19,25 @@ class ResolvedEndpoint(BaseModel):
             return None
 
 
-async def resolve_endpoint(endpoint: AnyUrl) -> ResolvedEndpoint:
+def flexible_parse(uri: str):
+    if "://" not in uri:
+        uri = "http://" + uri
+    return urlparse(uri)
+
+
+async def resolve_endpoint(endpoint: str) -> ResolvedEndpoint:
+    uri = flexible_parse(endpoint)
+
     ipv4 = []
     ipv6 = []
     domain = None
 
-    if validators.ipv4(endpoint.host):
-        ipv4.append(endpoint.host)
-    elif validators.ipv6(endpoint.host):
-        ipv6.append(endpoint.host)
+    if validators.ipv4(uri.netloc):
+        ipv4.append(uri.netloc)
+    elif validators.ipv6(uri.netloc):
+        ipv6.append(uri.netloc)
     else:
-        domain = endpoint.host
+        domain = uri.netloc
         resolver = DNSResolver()
         ipv4.extend(
             await resolver.query(domain, "A")

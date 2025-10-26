@@ -11,7 +11,6 @@ from .type_enum import CheckTaskTypeEnum
 
 class HTTPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.HTTP] = CheckTaskTypeEnum.HTTP
-
     url: HttpUrl
     timeout: int = 10
     verify_ssl: bool = True
