@@ -11,9 +11,7 @@ from .type_enum import CheckTaskTypeEnum
 
 class Nmap3CheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.NMAP] = CheckTaskTypeEnum.NMAP
-
-    ip: IPvAnyAddress | None = None
-    url: HttpUrl | None = None
+    url: str
     ports: str | None = None  # optional (for future use)
 
     async def perform_check(self) -> Nmap3CheckTaskResult:
@@ -23,18 +21,16 @@ class Nmap3CheckTaskPayload(BaseCheckTaskPayload):
         - OS detection
         - Top port scan
         """
-        if self.url is None:
-            self.url = self.ip
         nmap = nmap3.Nmap()
 
         async def run_version_detection() -> dict[str, Any]:
-            return await asyncio.to_thread(nmap.nmap_version_detection, str(self.ip))
+            return await asyncio.to_thread(nmap.nmap_version_detection, str(self.url))
 
         async def run_os_detection() -> dict[str, Any]:
-            return await asyncio.to_thread(nmap.nmap_os_detection, str(self.ip))
+            return await asyncio.to_thread(nmap.nmap_os_detection, str(self.url))
 
         async def run_top_ports() -> dict[str, Any]:
-            return await asyncio.to_thread(nmap.scan_top_ports, str(self.ip))
+            return await asyncio.to_thread(nmap.scan_top_ports, str(self.url))
 
         try:
             # Run all scans concurrently
