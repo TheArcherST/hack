@@ -8,7 +8,7 @@ from .http import HTTPCheckTaskPayload, HTTPCheckTaskResult
 from .geoip import GeoIPCheckTaskPayload, GeoIPCheckTaskResult
 from .tcp_and_udp import TCPUDPCheckTaskPayload, TCPUDPCheckTaskResult
 from .traceroute import TracerouteCheckTaskPayload, TracerouteCheckTaskResult
-
+from .ping import PingCheckTaskPayload, PingCheckTaskResult
 
 type AnyCheckTaskPayloadType = Annotated[
     (
@@ -18,6 +18,7 @@ type AnyCheckTaskPayloadType = Annotated[
         | GeoIPCheckTaskPayload
         | TCPUDPCheckTaskPayload
         | TracerouteCheckTaskPayload
+        | PingCheckTaskPayload
     ),
     Discriminator("type")
 ]
@@ -31,6 +32,7 @@ type AnyCheckTaskResultType = Annotated[
         | GeoIPCheckTaskResult
         | TCPUDPCheckTaskResult
         | TracerouteCheckTaskResult
+        | PingCheckTaskResult
     ),
     Discriminator("type")
 ]
