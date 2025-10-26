@@ -26,7 +26,7 @@ class PingCheckTaskPayload(BaseCheckTaskPayload):
                 ip=resolved_endpoint.some_ip,
                 average_delay=ping_average*100,
                 max_delay=max(alive_pings)*100,
-                min_delay=min(alive_pings*100),
+                min_delay=min(alive_pings)*100,
                 live=len(alive_pings),
                 total=len(ping_result),
             )
