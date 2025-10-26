@@ -39,15 +39,15 @@ async def resolve_endpoint(endpoint: str) -> ResolvedEndpoint:
     else:
         domain = uri.netloc
         resolver = DNSResolver()
-        ipv4.extend(
+        ipv4.extend(map(str,
             await resolver.query(domain, "A")
-        )
-        ipv6.extend(
+        ))
+        ipv6.extend(map(str,
             await resolver.query(domain, "AAAA")
-        )
+        ))
 
-    return ResolvedEndpoint(
+    return ResolvedEndpoint.model_validate(dict(
         domain=domain,
         ipv4=ipv4,
         ipv6=ipv6,
-    )
+    ))
