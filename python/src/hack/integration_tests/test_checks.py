@@ -51,7 +51,7 @@ def test_streams(
     req = api_templates.make_create_check()
     req.json = {
         "payload": {
-            "type": "tcp_or_udp",
+            "type": "tcp_and_udp",
             "url": "gmail.com",
             "port": 80,
         }
