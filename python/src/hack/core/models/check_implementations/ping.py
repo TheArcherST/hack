@@ -19,11 +19,11 @@ class PingCheckTaskPayload(BaseCheckTaskPayload):
     async def perform_check(self) -> PingCheckTaskResult:
         try:
             resolved_endpoint = await resolve_endpoint(self.url)
-            # Offload the blocking ping() call to a thread
             ping_result = [await asyncio.to_thread(ping,  str(resolved_endpoint.some_ip), timeout=10) for i in range(self.count)]
             alive_pings = [i for i in ping_result if i]
             ping_average = sum(alive_pings) / len(alive_pings)
             return PingCheckTaskResult(
+                ip=resolved_endpoint.some_ip,
                 average_delay=ping_average,
                 max_delay=max(alive_pings),
                 min_delay=min(alive_pings),
@@ -38,6 +38,7 @@ class PingCheckTaskPayload(BaseCheckTaskPayload):
 
 
 class PingCheckTaskResult(BaseCheckTaskResult):
+    ip: IPvAnyAddress | None = None
     type: Literal[CheckTaskTypeEnum.PING] = CheckTaskTypeEnum.PING
     average_delay: float | None = None  # seconds
     max_delay: float | None = None
