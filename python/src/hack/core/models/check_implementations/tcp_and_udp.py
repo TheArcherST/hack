@@ -32,11 +32,11 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
 
     async def _check_tcp(self) -> dict[str, Any]:
         async def run_check():
-            self.resolved_endpoint = await resolve_endpoint(self.url)
+            resolved_endpoint = await resolve_endpoint(self.url)
             start = asyncio.get_event_loop().time()
             try:
                 reader, writer = await asyncio.wait_for(
-                    asyncio.open_connection(str(self.resolved_endpoint.ip), self.port),
+                    asyncio.open_connection(str(resolved_endpoint.some_ip), self.port),
                     timeout=self.timeout,
                 )
                 writer.close()
@@ -47,7 +47,7 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
                     "latency_ms": round(elapsed, 2),
                     "protocol": "tcp",
                     "port": self.port,
-                    "ip": str(self.resolved_endpoint.ip),
+                    "ip": str(resolved_endpoint.some_ip),
                 }
             except Exception as e:
                 return {"error": str(e)}
@@ -55,6 +55,8 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
         return await run_check()
 
     async def _check_udp(self) -> dict[str, Any]:
+        resolved_endpoint = await resolve_endpoint(self.url)
+
         async def run_check():
             start = asyncio.get_event_loop().time()
             try:
@@ -63,7 +65,7 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
 
                 transport, _ = await loop.create_datagram_endpoint(
                     asyncio.DatagramProtocol,
-                    remote_addr=(str(self.resolved_endpoint.ip), self.port),
+                    remote_addr=(str(resolved_endpoint.some_ip), self.port),
                 )
 
                 transport.sendto(b"ping")
@@ -82,7 +84,7 @@ class TCPUDPCheckTaskPayload(BaseCheckTaskPayload):
                     "latency_ms": round(elapsed, 2),
                     "protocol": "udp",
                     "port": self.port,
-                    "ip": str(self.resolved_endpoint.ip),
+                    "ip": str(resolved_endpoint.some_ip),
                 }
             except Exception as e:
                 return {"error": str(e)}
