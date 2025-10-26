@@ -21,13 +21,15 @@ class HTTPCheckTaskPayload(BaseCheckTaskPayload):
     body: Optional[str] = None
 
     async def perform_check(self) -> HTTPCheckTaskResult:
-        resolved_endpoint = await resolve_endpoint(self.url)
+        url = self.url
+        if not url.startswith("http"):
+            url = "https://" + url
         async def check_http() -> dict[str, Any]:
             timeout = aiohttp.ClientTimeout(total=self.timeout)
             async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.request(
                     method=self.method,
-                    url=str(resolved_endpoint.domain or resolved_endpoint.some_ip),
+                    url=url,
                     headers=self.headers,
                     data=self.body,
                     allow_redirects=self.follow_redirects,
