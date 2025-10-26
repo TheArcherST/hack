@@ -82,7 +82,7 @@ services:
       postgres:
         condition: service_healthy
     deploy:
-      replicas: 3
+      replicas: 5
   bindingd:
     build: ./python
     command: run-bindingd
