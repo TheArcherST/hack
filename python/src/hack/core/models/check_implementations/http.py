@@ -23,27 +23,24 @@ class HTTPCheckTaskPayload(BaseCheckTaskPayload):
     async def perform_check(self) -> HTTPCheckTaskResult:
         resolved_endpoint = await resolve_endpoint(self.url)
         async def check_http() -> dict[str, Any]:
-            try:
-                timeout = aiohttp.ClientTimeout(total=self.timeout)
-                async with aiohttp.ClientSession(timeout=timeout) as session:
-                    async with session.request(
-                        method=self.method,
-                        url=str(resolved_endpoint.domain or resolved_endpoint.some_ip),
-                        headers=self.headers,
-                        data=self.body,
-                        allow_redirects=self.follow_redirects,
-                        # ssl=self.verify_ssl,
-                    ) as response:
-                        content = await response.text(errors="ignore")
-                        return {
-                            "status_code": response.status,
-                            "reason": response.reason,
-                            "headers": dict(response.headers),
-                            "final_url": str(response.url),
-                            "content_snippet": content[:500],  # limit to avoid huge responses
-                        }
-            except Exception as e:
-                return {"error": str(e)}
+            timeout = aiohttp.ClientTimeout(total=self.timeout)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                async with session.request(
+                    method=self.method,
+                    url=str(resolved_endpoint.domain or resolved_endpoint.some_ip),
+                    headers=self.headers,
+                    data=self.body,
+                    allow_redirects=self.follow_redirects,
+                    # ssl=self.verify_ssl,
+                ) as response:
+                    content = await response.text(errors="ignore")
+                    return {
+                        "status_code": response.status,
+                        "reason": response.reason,
+                        "headers": dict(response.headers),
+                        "final_url": str(response.url),
+                        "content_snippet": content[:500],  # limit to avoid huge responses
+                    }
 
         data = await asyncio.to_thread(lambda: asyncio.run(check_http()))
 
