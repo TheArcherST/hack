@@ -4,6 +4,7 @@ import asyncio
 from typing import Literal
 
 from aiodns import DNSResolver
+from aiodns.error import DNSError
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
 from .commands import flexible_parse
@@ -20,12 +21,19 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
         resolver = DNSResolver()
 
         # Run all lookups concurrently
-        a_task = resolver.query(domain, "A")
-        aaaa_task = resolver.query(domain, "AAAA")
-        mx_task = resolver.query(domain, "MX")
-        ns_task = resolver.query(domain, "NS")
-        txt_task = resolver.query(domain, "TXT")
-        cname_task = resolver.query(domain, "CNAME")
+
+        async def query(domain_, url_):
+            try:
+                return await resolver.query(domain_, url_)
+            except DNSError:
+                return []
+
+        a_task = query(domain, "A")
+        aaaa_task = query(domain, "AAAA")
+        mx_task = query(domain, "MX")
+        ns_task = query(domain, "NS")
+        txt_task = query(domain, "TXT")
+        cname_task = query(domain, "CNAME")
 
         # Wait for all tasks
         a_records, aaaa_records, mx_records, ns_records, txt_records, cname_records = await asyncio.gather(
