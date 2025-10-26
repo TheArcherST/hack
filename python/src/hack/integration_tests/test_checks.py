@@ -12,7 +12,7 @@ def test_streams(
     req.json = {
         "payload": {
             "type": "dns",
-            "domain": "example.com",
+            "url": "example.com",
         },
     }
     r = client.prepsend(req)
