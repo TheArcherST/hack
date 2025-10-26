@@ -49,7 +49,7 @@ async def async_main():
                 uow_ctl = await request_c.get(UoWCtl)
                 await uow_ctl.commit()
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.05)
 
 
 def main():
