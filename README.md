@@ -21,4 +21,7 @@ Tests:
 </ul>
 
 How to connect agent:
-Copy 
+1. Ensure you installed docker on your host
+2. Create new directory for the deployment
+3. Place downloaded from frontend compose.yaml into it
+4. `docker compose up -d`
