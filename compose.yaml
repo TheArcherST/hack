@@ -81,6 +81,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      replicas: 5
   bindingd:
     build: ./python
     command: run-bindingd

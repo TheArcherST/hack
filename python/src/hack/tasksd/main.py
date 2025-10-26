@@ -1,5 +1,5 @@
 import asyncio
-from traceback import print_tb
+from traceback import print_tb, print_exception
 
 from dishka import make_async_container, Scope, Provider, provide
 
@@ -37,6 +37,7 @@ async def async_main():
                 agent_service = await request_c.get(AgentService)
                 check_task = await check_service.acquire_next_check_task()
                 if check_task is None:
+                    await asyncio.sleep(1)
                     continue
                 connector = await agent_service.get_connector(
                     agent_id=check_task.bound_to_agent_id,
@@ -45,7 +46,7 @@ async def async_main():
                 try:
                     async with connector.connect() as conn:
                         json_data = {"payload": check_task.payload}
-                        response = await conn.post("/check", json=json_data)
+                        response = await conn.post("/check", json=json_data, timeout=40)
                 except TimeoutError:
                     print(f"Timeout error for agent {check_task.bound_to_agent_id}")
                     await check_service.notify_check_task_failed(check_task.uid)
@@ -54,6 +55,7 @@ async def async_main():
                 except Exception as e:
                     print(f"Some unknown error for agent {check_task.bound_to_agent_id}: `{e}`")
                     print_tb(e.__traceback__)
+                    print_exception(e)
                     await check_service.notify_check_task_failed(check_task.uid)
                     await uow_ctl.commit()
                     continue
@@ -70,7 +72,7 @@ async def async_main():
                 await check_service.store_check_task_result(check_task.uid, result)
                 await uow_ctl.commit()
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.1)
 
 
 def main():

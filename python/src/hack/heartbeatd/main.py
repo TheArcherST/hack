@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from traceback import print_exception
 
 from dishka import make_async_container, FromDishka
 from dishka.integrations.taskiq import inject, setup_dishka, TaskiqProvider
@@ -48,6 +49,7 @@ async def heartbit(
             # todo: heartbit endpoint
     except Exception as e:
         print(f"Error while trying to connect to agent {agent_id}: `{e}`")
+        print_exception(e)
         status = AgentStatus.DOWN
     else:
         status = AgentStatus.UP
@@ -68,10 +70,10 @@ async def heartbeat_schedule_loop(
 ):
     print("Enter heartbeat schedule loop")
     async for i in await agent_service.stream_up_ids(is_up=False):
-        for j in range(10):  # 60 seconds / 10 = 6 seconds
+        for j in range(4):
             await heartbit.schedule_by_time(
                 redis_source,
-                datetime.now() + timedelta(seconds=j * 10),
+                datetime.now() + timedelta(seconds=j * 20),
                 agent_id=i,
             )
 
