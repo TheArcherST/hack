@@ -4,6 +4,7 @@ import asyncio
 from typing import Any, Optional, Literal
 
 import geoip2.database
+from geoip2.errors import AddressNotFoundError
 from pydantic import Field, AnyUrl
 from scapy.all import sr1, IP, ICMP
 
@@ -41,7 +42,11 @@ class TracerouteCheckTaskPayload(BaseCheckTaskPayload):
                     if reply.src == str(resolved_endpoint.some_ip):
                         break
 
-                hops.append((hop_info, reader.city(reply.src).country))
+                try:
+                    city = reader.city(reply.src).city.name
+                except AddressNotFoundError:
+                    city = None
+                hops.append((hop_info, city))
 
             # If no hops were recorded, likely unreachable
             if not hops:
