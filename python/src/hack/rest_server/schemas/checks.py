@@ -22,7 +22,7 @@ class CheckTaskDTO(BaseDTO):
 
     @computed_field
     @property
-    def is_failed(self):
+    def is_failed(self) -> bool:
         return self.failed_count >= 3
 
 
