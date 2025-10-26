@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import geoip2.database
-from pydantic import IPvAnyAddress, HttpUrl, AnyUrl
+from pydantic import IPvAnyAddress, HttpUrl
 from typing import Any, Literal
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
@@ -13,8 +13,8 @@ from .type_enum import CheckTaskTypeEnum
 class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
     type: Literal[CheckTaskTypeEnum.GEOIP] = CheckTaskTypeEnum.GEOIP
 
-    ip: IPvAnyAddress | None = None
-    url: AnyUrl | None = None
+    ip: list[IPvAnyAddress] | None = None
+    url: HttpUrl | None = None
     db_asn_path: str = "/usr/src/app/GeoLite2-ASN.mmdb"
     db_path: str = "/usr/src/app/GeoLite2-City.mmdb"
 
@@ -26,32 +26,34 @@ class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
             try:
                 with geoip2.database.Reader(self.db_asn_path) as asn_reader:
                     with geoip2.database.Reader(self.db_path) as reader:
-                        asn_response = asn_reader.asn(str(self.ip))
-                        response = reader.city(str(self.ip))
-                        return {
-                            "country": response.country.name,
-                            "city": response.city.name,
-                            "region": response.subdivisions.most_specific.name,
-                            "postal_code": response.postal.code,
-                            "latitude": response.location.latitude,
-                            "longitude": response.location.longitude,
-                            "time_zone": response.location.time_zone,
-                            "organization": asn_response.autonomous_system_organization,
-                        }
+                        result = []
+                        for ip in self.ip:
+                            asn_response = asn_reader.asn(str(self.ip))
+                            response = reader.city(str(self.ip))
+                            result.append({
+                                "country": response.country.name,
+                                "city": response.city.name,
+                                "region": response.subdivisions.most_specific.name,
+                                "postal_code": response.postal.code,
+                                "latitude": response.location.latitude,
+                                "longitude": response.location.longitude,
+                                "time_zone": response.location.time_zone,
+                                "organization": asn_response.autonomous_system_organization,
+                            })
+                        return result
             except Exception as e:
                 return {"error": str(e)}
 
         data = await asyncio.to_thread(lookup_ip)
 
+
         if "error" in data:
             return GeoIPCheckTaskResult(error=data["error"])
 
-        return GeoIPCheckTaskResult(**data)
+        return GeoIPCheckTaskResult(items = [GeoIPItem(**i) for i in data])
 
 
-class GeoIPCheckTaskResult(BaseCheckTaskResult):
-    type: Literal[CheckTaskTypeEnum.GEOIP] = CheckTaskTypeEnum.GEOIP
-
+class GeoIPItem(BaseCheckTaskResult):
     country: str | None = None
     city: str | None = None
     region: str | None = None
@@ -60,3 +62,8 @@ class GeoIPCheckTaskResult(BaseCheckTaskResult):
     time_zone: str | None = None
     organization: str | None = None
     error: str | None = None
+
+
+class GeoIPCheckTaskResult(BaseCheckTaskResult):
+    type: Literal[CheckTaskTypeEnum.GEOIP] = CheckTaskTypeEnum.GEOIP
+    items: list[GeoIPItem]

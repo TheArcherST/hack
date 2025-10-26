@@ -2,15 +2,15 @@ import asyncio
 from ipaddress import IPv4Address, IPv6Address
 
 import pydig
-from pydantic import AnyUrl
+from pydantic import HttpUrl
 
 
-async def get_ip(url: AnyUrl) -> tuple[IPv4Address, IPv6Address]:
+async def get_ip(url: HttpUrl) -> tuple[list[IPv4Address], list[IPv6Address]]:
 
 
     async def query(record_type: str) -> list[str]:
         # Run pydig.query in a thread to avoid blocking
-        return await asyncio.to_thread(pydig.query, url.host, record_type)
+        return await asyncio.to_thread(pydig.query, url, record_type)
 
     # Run all lookups concurrently
     a_task = asyncio.create_task(query("A"))
@@ -21,5 +21,5 @@ async def get_ip(url: AnyUrl) -> tuple[IPv4Address, IPv6Address]:
         a_task, aaaa_task
     )
 
-    return a_records, aaaa_records
+    return map(IPv4Address, a_records), map(IPv6Address, aaaa_records)
 
