@@ -12,7 +12,7 @@ def test_streams(
     req.json = {
         "payload": {
             "type": "dns",
-            "url": "example.com",
+            "url": "superlamp.online",
         },
     }
     r = client.prepsend(req)
@@ -22,7 +22,7 @@ def test_streams(
     req.json = {
         "payload": {
             "type": "geoip",
-            "url": "google.com",
+            "url": "superlamp.online",
         },
     }
     r = client.prepsend(req)
@@ -32,7 +32,17 @@ def test_streams(
     req.json = {
         "payload": {
             "type": "traceroute",
-            "url": "google.com",
+            "url": "superlamp.online",
+        }
+    }
+    r = client.prepsend(req)
+    assert r.status_code == 201
+
+    req = api_templates.make_create_check()
+    req.json = {
+        "payload": {
+            "type": "nmap",
+            "url": "superlamp.online",
         }
     }
     r = client.prepsend(req)
