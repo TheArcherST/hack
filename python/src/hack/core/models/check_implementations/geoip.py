@@ -4,6 +4,8 @@ import geoip2.database
 from pydantic import BaseModel
 from typing import Literal
 
+from pydantic.v1 import IPvAnyAddress
+
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
 from .commands import resolve_endpoint
 from .type_enum import CheckTaskTypeEnum
@@ -26,6 +28,7 @@ class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
                 asn_response = asn_reader.asn(str(ip))
                 response = reader.city(str(ip))
                 items.append(GeoIPItem(
+                    ip=ip,
                     country=response.country.name,
                     city=response.city.name,
                     region=response.subdivisions.most_specific.name,
@@ -41,6 +44,7 @@ class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
 
 
 class GeoIPItem(BaseModel):
+    ip: IPvAnyAddress
     country: str | None = None
     city: str | None = None
     region: str | None = None
