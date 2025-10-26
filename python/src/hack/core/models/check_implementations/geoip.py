@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import geoip2.database
-from pydantic import BaseModel
+from pydantic import BaseModel, IPvAnyAddress
 from typing import Literal
-
-from pydantic.v1 import IPvAnyAddress
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
 from .commands import resolve_endpoint

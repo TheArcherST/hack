@@ -27,6 +27,7 @@ providers = [
 
 
 async def async_main():
+    from hack.tasksd.tasks import process_check_task
     container = make_async_container(*providers)
     async with container(scope=Scope.SESSION) as app_c:
         while True:
@@ -41,11 +42,12 @@ async def async_main():
                     await asyncio.sleep(1)
                     continue
                 async for i in await agent_service.stream_up_ids(limit=10, random_order=True):
-                    await check_service.create_check_task(
+                    check_task = await check_service.create_check_task(
                         check_uid=check.uid,
                         payload=AnyCheckTaskPayload.validate_python(check.payload),
                         bound_to_agent_id=i,
                     )
+                    await process_check_task.kiq(check_task_uid=check_task.uid)
                 await check_service.ack_check(check_uid=check.uid)
                 uow_ctl = await request_c.get(UoWCtl)
                 await uow_ctl.commit()
