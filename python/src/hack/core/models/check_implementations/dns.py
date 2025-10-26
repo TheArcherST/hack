@@ -6,6 +6,7 @@ from typing import Literal
 from aiodns import DNSResolver
 
 from .base import BaseCheckTaskPayload, BaseCheckTaskResult
+from .commands import flexible_parse
 from .type_enum import CheckTaskTypeEnum
 
 
@@ -14,7 +15,7 @@ class DNSCheckTaskPayload(BaseCheckTaskPayload):
     url: str
 
     async def perform_check(self) -> DNSCheckTaskResult:
-        domain = self.url
+        domain = flexible_parse(self.url).netloc
 
         resolver = DNSResolver()
 
