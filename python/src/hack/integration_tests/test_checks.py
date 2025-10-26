@@ -27,3 +27,13 @@ def test_streams(
     }
     r = client.prepsend(req)
     assert r.status_code == 201
+
+    req = api_templates.make_create_check()
+    req.json = {
+        "payload": {
+            "type": "traceroute",
+            "url": "google.com",
+        }
+    }
+    r = client.prepsend(req)
+    assert r.status_code == 201
