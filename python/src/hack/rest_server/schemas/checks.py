@@ -18,7 +18,7 @@ class CheckTaskDTO(BaseDTO):
     bound_to_agent: BoundToAgentDTO
     payload: AnyCheckTaskPayloadType
     result: AnyCheckTaskResultType | None
-    failed_count: int = False
+    failed_count: int
 
     @computed_field
     @property
