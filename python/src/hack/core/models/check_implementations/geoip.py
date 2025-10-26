@@ -20,7 +20,7 @@ class GeoIPCheckTaskPayload(BaseCheckTaskPayload):
 
     async def perform_check(self) -> GeoIPCheckTaskResult:
         if self.ip is None:
-            self.ip, _ = get_ip(self.url)
+            self.ip, _ = await get_ip(self.url)
 
         def lookup_ip() -> dict[str, Any]:
             try:
