@@ -27,4 +27,3 @@ def test_streams(
     }
     r = client.prepsend(req)
     assert r.status_code == 201
-    breakpoint()
